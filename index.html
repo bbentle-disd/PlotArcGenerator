@@ -1,3 +1,2190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vonnegut Story Shape Plotter</title>
+<style>
+  :root {
+    --ink: #1e2432;
+    --muted: #64748b;
+    --paper: #f8fafc;
+    --panel: #ffffff;
+    --line: #cbd5e1;
+    --accent: #4338ca;
+    --accent-hover: #3730a3;
+    --accent-soft: #eef2ff;
+    --accent-border: #a5b4fc;
+    --good: #059669;
+    --good-soft: #ecfdf5;
+    --bad: #dc2626;
+    --bad-soft: #fef2f2;
+    --bridge: #0284c7;
+    --bridge-soft: #f0f9ff;
+    --bridge-border: #7dd3fc;
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+    --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.1);
+  }
+  * {
+    box-sizing: border-box;
+    border-radius: 0 !important; /* Eliminate all rounded corners in exchange for sharp corners */
+  }
+  body {
+    margin: 0;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.5;
+  }
+  header {
+    padding: 18px 28px;
+    border-bottom: 2px solid var(--line);
+    background: var(--panel);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-titles h1 {
+    margin: 0 0 3px;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-titles p { margin: 0; color: var(--muted); font-size: 12.5px; }
+  .header-badges {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .badge {
+    padding: 4px 10px;
+    border: 1px solid var(--accent-border);
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .badge-bridge {
+    border-color: var(--bridge-border);
+    background: var(--bridge-soft);
+    color: var(--bridge);
+  }
+
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .panel h2 {
+    margin: 0 0 14px;
+    font-size: 16px;
+    font-weight: 750;
+    color: var(--ink);
+  }
+  .subhead {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 18px 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  label { font-weight: 600; font-size: 12.5px; display: block; margin-bottom: 5px; color: #334155; }
+  input[type="text"], textarea, select {
+    width: 100%;
+    border: 1px solid var(--line);
+    padding: 9px 11px;
+    font: inherit;
+    font-size: 12.5px;
+    background: white;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(67, 56, 202, 0.2);
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fortune-wrap {
+    margin-top: 10px;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+    margin: 6px 0 2px;
+  }
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .fortune-value {
+    display: inline-block;
+    min-width: 135px;
+    text-align: center;
+    padding: 4px 8px;
+    border: 1px solid var(--accent-border);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 750;
+    font-size: 11px;
+  }
+  .buttons { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  button {
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    background: #f8fafc;
+    color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color .15s, border-color .15s;
+  }
+  button:hover { background: #e2e8f0; border-color: #94a3b8; }
+  button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button.small { padding: 4px 8px; font-size: 11px; }
+
+  .tip {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-left: 3px solid #64748b;
+    background: #f1f5f9;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #334155;
+  }
+  .tip strong { color: var(--ink); }
+
+  /* Sequence & Event List */
+  .event-list {
+    margin-top: 14px;
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    padding: 8px;
+    background: #fafbfc;
+    scroll-behavior: smooth;
+  }
+  .event-list:empty::before {
+    content: "No events plotted yet. Add an event above or select an example story!";
+    display: block;
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .event {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 8px;
+    background: white;
+    border: 1px solid var(--line);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    transition: background .12s, border-color .12s;
+  }
+  .event.active-event {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .num {
+    width: 26px; height: 26px;
+    background: #0f172a;
+    color: white;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 800;
+    margin-top: 2px;
+  }
+  .event-text {
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .event-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .event-control-item {
+    font-size: 10.5px;
+    color: var(--muted);
+  }
+  .event-control-item div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+  .delete-btn {
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .delete-btn:hover { background: #fee2e2; color: #dc2626; }
+
+  /* In-Between Transition Card */
+  .inbetween-block {
+    position: relative;
+    margin: 6px 0 6px 14px;
+    padding: 8px 10px 8px 14px;
+    border-left: 2px dashed #0284c7;
+    background: #f0f9ff;
+    transition: all .15s ease;
+  }
+  .inbetween-block.has-content {
+    background: #f8fafc;
+    border-left: 2px solid #4338ca;
+  }
+  .inbetween-block.active-inbetween {
+    background: #e0f2fe;
+    border-left: 3px solid var(--bridge);
+  }
+  .inbetween-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 10.5px;
+    font-weight: 750;
+    color: #0369a1;
+  }
+  .inbetween-header-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .inbetween-icon-badge {
+    background: #bae6fd;
+    color: #0369a1;
+    padding: 1px 5px;
+    font-size: 9.5px;
+    font-weight: 800;
+  }
+  .inbetween-textarea {
+    width: 100%;
+    min-height: 48px;
+    font-size: 11.5px;
+    line-height: 1.4;
+    border: 1px solid var(--line);
+    padding: 6px 8px;
+    background: white;
+    resize: vertical;
+  }
+  .inbetween-textarea:focus {
+    outline: none;
+    border-color: var(--bridge);
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+  }
+  .inbetween-textarea::placeholder {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 11px;
+  }
+
+  .canvas-panel {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .canvas-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chart-wrap {
+    width: 100%;
+    position: relative;
+    background: #ffffff;
+    border: 2px solid var(--line);
+    overflow: hidden;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 900 / 520;
+    display: block;
+    user-select: none;
+    touch-action: none;
+  }
+
+  /* SVG Styles */
+  .axis-main { stroke: #334155; stroke-width: 2; }
+  .axis-zero { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .grid-line { stroke: #f1f5f9; stroke-width: 1; }
+  .axis-label { font-size: 10.5px; font-weight: 750; fill: #334155; letter-spacing: 0.03em; }
+  .axis-subtitle { font-size: 9.5px; fill: #64748b; font-weight: 500; }
+  .tick-text { font-size: 10px; fill: #64748b; font-family: monospace; }
+  
+  .template-path {
+    fill: none;
+    stroke-width: 3;
+    stroke-dasharray: 6 5;
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity .2s, stroke-width .2s;
+  }
+  .template-path.highlighted {
+    opacity: 0.95;
+    stroke-width: 4.5;
+  }
+
+  .user-area-good { fill: url(#goodGrad); opacity: 0.35; pointer-events: none; }
+  .user-area-bad { fill: url(#badGrad); opacity: 0.35; pointer-events: none; }
+  
+  .user-curve-shadow {
+    fill: none;
+    stroke: rgba(67, 56, 202, 0.2);
+    stroke-width: 10;
+    pointer-events: none;
+  }
+  .user-curve-line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 4;
+    pointer-events: none;
+  }
+
+  .point-group { cursor: grab; }
+  .point-group:active { cursor: grabbing; }
+  .point-hit { fill: transparent; }
+  .point-halo {
+    fill: var(--accent);
+    opacity: 0.15;
+  }
+  .point-circle {
+    fill: #0f172a;
+    stroke: #ffffff;
+    stroke-width: 2;
+  }
+  .point-group:hover .point-circle, .point-group.active-drag .point-circle {
+    fill: var(--accent);
+  }
+  .point-tag {
+    font-size: 11px;
+    font-weight: 800;
+    fill: #ffffff;
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* In-Between Interactive Bridge Badges on the Curve */
+  .bridge-node {
+    cursor: pointer;
+  }
+  .bridge-circle {
+    fill: #ffffff;
+    stroke: #0284c7;
+    stroke-width: 2;
+  }
+  .bridge-node.has-note .bridge-circle {
+    fill: #0284c7;
+    stroke: #ffffff;
+  }
+  .bridge-icon {
+    font-size: 9px;
+    font-weight: 800;
+    fill: #0284c7;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+  .bridge-node.has-note .bridge-icon {
+    fill: #ffffff;
+  }
+
+  /* Tooltip overlay in SVG */
+  .tooltip-box {
+    pointer-events: none;
+    transition: opacity .15s;
+  }
+  .tooltip-bg {
+    fill: #0f172a;
+  }
+  .tooltip-title { fill: #f8fafc; font-size: 11px; font-weight: 800; }
+  .tooltip-desc { fill: #cbd5e1; font-size: 10px; }
+  .tooltip-sub { fill: #93c5fd; font-size: 9.5px; font-weight: 700; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 4px;
+  }
+  .legend-item {
+    border: 1px solid var(--line);
+    padding: 4px 10px 4px 8px;
+    font-size: 11px;
+    font-weight: 650;
+    background: white;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+  }
+  .legend-item:hover { border-color: #94a3b8; background: #f8fafc; }
+  .legend-item.active { background: #eef2ff; border-color: #a5b4fc; color: #3730a3; }
+  .legend-color-dot {
+    width: 9px;
+    height: 9px;
+    display: inline-block;
+  }
+
+  .insight {
+    padding: 12px 14px;
+    border-left: 4px solid var(--accent);
+    background: #f8fafc;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #334155;
+  }
+  .mode { display: flex; gap: 6px; margin-bottom: 12px; }
+  .mode button { flex: 1; padding: 8px 10px; }
+  .mode button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Narrative Log Breakdown for Classroom Presentation & Printing */
+  .story-narrative-log {
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+  }
+  .narrative-log-item {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: #f8fafc;
+    border-left: 3px solid #4338ca;
+  }
+  .narrative-log-bridge {
+    padding: 6px 12px 6px 20px;
+    margin: -4px 0 8px 12px;
+    border-left: 2px dashed #0284c7;
+    font-size: 11.5px;
+    color: #0369a1;
+    background: #f0f9ff;
+  }
+
+  .footer-note {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px 24px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  /* --- Responsive: Half-screen / split-window (tablet-ish) --- */
+  @media (max-width: 960px) {
+    main {
+      grid-template-columns: 1fr;
+      padding: 14px;
+      gap: 16px;
+    }
+    /* Put the graph panel first when stacked */
+    .canvas-panel { order: -1; }
+    header { position: static; }
+    header { padding: 14px 20px; }
+    .header-titles h1 { font-size: 18px; }
+    .header-titles p { font-size: 11.5px; }
+    .panel { padding: 14px 16px; }
+    .panel h2 { font-size: 15px; }
+    .event-list { max-height: 320px; }
+  }
+
+  /* --- Responsive: Narrow half-screen / small window --- */
+  @media (max-width: 720px) {
+    header {
+      padding: 10px 14px;
+      gap: 8px;
+    }
+    .header-titles h1 { font-size: 16px; gap: 6px; }
+    .header-titles p { font-size: 10.5px; }
+    .badge { font-size: 10px; padding: 3px 7px; }
+    main { padding: 10px; gap: 12px; }
+    .panel { padding: 12px 12px; }
+    .panel h2 { font-size: 14px; margin-bottom: 10px; }
+    .subhead { font-size: 10px; margin: 14px 0 6px; }
+    label { font-size: 11.5px; }
+    input[type="text"], textarea, select { font-size: 11.5px; padding: 7px 9px; }
+    textarea { min-height: 56px; }
+    button { font-size: 11px; padding: 6px 10px; }
+    button.small { font-size: 10px; padding: 3px 6px; }
+    .fortune-wrap { padding: 8px 10px; }
+    .fortune-value { font-size: 10px; min-width: 110px; padding: 3px 6px; }
+    .range-labels { font-size: 9.5px; }
+    .tip { font-size: 10.5px; padding: 8px 10px; }
+    .event { padding: 8px 6px; gap: 8px; }
+    .event-text { font-size: 11px; }
+    .event-controls { gap: 6px; }
+    .event-control-item { font-size: 9.5px; }
+    .num { width: 22px; height: 22px; font-size: 10px; }
+    .event-list { max-height: 260px; padding: 6px; }
+    .inbetween-block { padding: 6px 8px 6px 12px; margin: 4px 0 4px 10px; }
+    .inbetween-header { font-size: 9.5px; }
+    .inbetween-textarea { font-size: 10.5px; min-height: 40px; padding: 5px 7px; }
+    .insight { font-size: 11px; padding: 10px 12px; }
+    .canvas-toolbar h2 { font-size: 14px !important; }
+    .canvas-toolbar div { font-size: 10px !important; }
+    .legend-item { font-size: 10px; padding: 3px 8px 3px 6px; }
+    .legend-color-dot { width: 7px; height: 7px; }
+    .narrative-log-item { padding: 6px 10px; }
+    .narrative-log-bridge { padding: 5px 10px 5px 16px; font-size: 10.5px; }
+    .footer-note { font-size: 10px; padding: 0 10px 16px; }
+    .row { gap: 6px; }
+    .mode button { padding: 6px 8px; font-size: 11px; }
+  }
+
+  /* --- Responsive: Very narrow / phone-sized sliver --- */
+  @media (max-width: 520px) {
+    header {
+      padding: 8px 10px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .header-titles h1 { font-size: 14px; }
+    .header-titles p { font-size: 9.5px; }
+    .header-badges { gap: 5px; }
+    .badge { font-size: 9px; padding: 2px 5px; }
+    #saveStatus { font-size: 9px !important; }
+    main { padding: 8px; gap: 10px; }
+    .panel { padding: 10px 10px; }
+    .panel h2 { font-size: 13px; margin-bottom: 8px; }
+    .subhead { font-size: 9px; margin: 10px 0 5px; }
+    label { font-size: 10.5px; margin-bottom: 3px; }
+    input[type="text"], textarea, select { font-size: 10.5px; padding: 6px 8px; }
+    textarea { min-height: 48px; }
+    button { font-size: 10px; padding: 5px 8px; gap: 4px; }
+    button.small { font-size: 9px; padding: 2px 5px; }
+    .buttons { gap: 5px; margin-top: 8px; }
+    .fortune-wrap { padding: 6px 8px; margin-top: 8px; }
+    .fortune-value { font-size: 9px; min-width: 90px; padding: 2px 5px; }
+    .range-labels { font-size: 8.5px; }
+    .event { grid-template-columns: 22px 1fr auto; padding: 6px 5px; gap: 6px; }
+    .event-text { font-size: 10.5px; }
+    .num { width: 20px; height: 20px; font-size: 9px; }
+    .event-list { max-height: 220px; padding: 4px; }
+    .delete-btn { font-size: 14px; padding: 2px 4px; }
+    .inbetween-block { padding: 5px 6px 5px 10px; margin: 3px 0 3px 8px; }
+    .inbetween-header { font-size: 8.5px; }
+    .inbetween-icon-badge { font-size: 8px; padding: 1px 4px; }
+    .inbetween-textarea { font-size: 10px; min-height: 36px; padding: 4px 6px; }
+    .inbetween-textarea::placeholder { font-size: 9.5px; }
+    .tip { font-size: 10px; padding: 7px 8px; }
+    .insight { font-size: 10px; padding: 8px 10px; }
+    .canvas-toolbar { gap: 6px; }
+    .canvas-toolbar h2 { font-size: 13px !important; }
+    .canvas-toolbar div { font-size: 9px !important; }
+    .legend { gap: 5px; }
+    .legend-item { font-size: 9px; padding: 3px 6px 3px 5px; gap: 4px; }
+    .legend-color-dot { width: 6px; height: 6px; }
+    .chart-wrap { border-width: 1px; }
+    .narrative-log-item { padding: 5px 8px; margin-bottom: 6px; }
+    .narrative-log-bridge { padding: 4px 8px 4px 14px; font-size: 9.5px; }
+    .story-narrative-log h3 { font-size: 12px !important; }
+    .footer-note { font-size: 9px; padding: 0 8px 12px; }
+    .row { grid-template-columns: 1fr; }
+    .mode { gap: 4px; margin-bottom: 8px; }
+    .mode button { padding: 5px 6px; font-size: 10px; }
+    .event-controls { grid-template-columns: 1fr; gap: 5px; }
+  }
+  @media print {
+    header, .controls, .footer-note, .canvas-toolbar, .legend, .buttons, .tip { display: none !important; }
+    main { display: block; padding: 0; }
+    .panel { border: 0; box-shadow: none; padding: 0; }
+    .chart-wrap { border: 1px solid #94a3b8; page-break-after: avoid; }
+    .story-narrative-log { display: block !important; margin-top: 24px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-titles">
+    <h1>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" style="color:var(--accent);">
+        <path d="M3 17l6-6 4 4 8-8"></path>
+      </svg>
+      Vonnegut Story Shape Plotter
+    </h1>
+    <p>Plot narrative fortune over story time • Connect major plot beats with In-Betweens</p>
+  </div>
+  <div class="header-badges">
+    <span class="badge" id="eventCountBadge">0 events</span>
+    <span class="badge badge-bridge" id="inBetweenCountBadge">0 in-betweens</span>
+    <span id="saveStatus" style="font-size:11px;color:var(--muted);font-weight:600;">Auto-save ready</span>
+  </div>
+</header>
+
+<main>
+  <!-- Left Column: Controls & Event Management -->
+  <section class="panel controls">
+    <h2>1. Story Builder</h2>
+
+    <div class="mode">
+      <button id="reviewMode" class="active" onclick="setMode('review')">Review a Story</button>
+      <button id="ownMode" onclick="setMode('own')">Plan My Story</button>
+    </div>
+
+    <label for="storyTitle">Story or Book Title</label>
+    <input id="storyTitle" type="text" placeholder="Example: Holes, The Odyssey, Hatchet..." readonly style="background:#f1f5f9;cursor:default;">
+
+    <!-- 1. Review Mode: Story Selector (Only visible in Review Mode) -->
+    <div id="reviewStorySelectSection" style="margin-top:14px;">
+      <label for="exampleSelect">Browse Curated Classroom Stories (40 Stories)</label>
+      <div class="row">
+        <select id="exampleSelect" onchange="loadSelectedExample(this.value)">
+          <option value="">Choose a story...</option>
+        </select>
+        <button onclick="loadRandomExample()">Next Random</button>
+      </div>
+      <div id="exampleStatus" style="font-size:10.5px;color:var(--muted);margin-top:5px;">
+        40 curriculum-ready stories for 7th Grade ELA (Texas TEKS aligned)
+      </div>
+    </div>
+
+    <!-- 2. Plan My Story Mode: Add Event Section (Eliminated in Review Mode) -->
+    <div id="planCreationSection" style="display:none;margin-top:14px;">
+      <div class="subhead" style="margin-top:0;">Add a major plot event</div>
+      <label for="eventText">What happens at this moment?</label>
+      <textarea id="eventText" placeholder="Example: The main character discovers a secret map in the attic."></textarea>
+
+      <div class="fortune-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <label for="fortune" style="margin:0;">Character's Fortune Level</label>
+          <span id="fortuneValue" class="fortune-value">Normal Baseline</span>
+        </div>
+        <input id="fortune" type="range" min="-5" max="5" step="0.5" value="0">
+        <div class="range-labels">
+          <span style="color:#dc2626;">▼ Crisis / Rock Bottom</span>
+          <span>Normal Baseline</span>
+          <span style="color:#059669;">▲ Great Triumph</span>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="primary" onclick="addEvent()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          Add Event
+        </button>
+        <button onclick="clearAll()">Clear</button>
+        <button id="btnCopyStoryboard" onclick="copyStoryboard()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="0"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/></svg>
+          Copy Storyboard
+        </button>
+      </div>
+    </div>
+
+    <div class="subhead" style="margin-top:18px;">
+      <span>Story Sequence &amp; In-Betweens</span>
+      <button class="small" onclick="toggleAllInBetweens()" id="btnToggleAllInBetweens">Collapse In-Betweens</button>
+    </div>
+
+    <div id="eventList" class="event-list"></div>
+
+    <div class="tip">
+      💡 <strong>In-Betweens:</strong> Write summaries in the blue transition cards between each event. These explain the rising action, journeys, or decisions connecting your major plot peaks and valleys!
+    </div>
+
+    <div class="insight" id="insight" style="margin-top:16px;">
+      Add 3–5 major events to reveal the story shape arc.
+    </div>
+  </section>
+
+  <!-- Right Column: Canvas & Archetypes -->
+  <section class="panel canvas-panel">
+    <div class="canvas-toolbar">
+      <h2 style="margin:0;">The Story Shape Arc</h2>
+      <div style="font-size:11.5px;color:var(--muted);">
+        Drag dots to reshape • Click ✦ badges to write In-Betweens
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 900 520" role="img" aria-label="Interactive Kurt Vonnegut Story Arc Plotter">
+        <defs>
+          <linearGradient id="goodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#059669" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#059669" stop-opacity="0.02"/>
+          </linearGradient>
+          <linearGradient id="badGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#dc2626" stop-opacity="0.02"/>
+            <stop offset="100%" stop-color="#dc2626" stop-opacity="0.35"/>
+          </linearGradient>
+        </defs>
+
+        <g id="grid"></g>
+
+        <!-- Baseline Y=0 -->
+        <line class="axis-zero" x1="70" y1="250" x2="850" y2="250"></line>
+        <text x="855" y="254" font-size="9.5" fill="#64748b" font-weight="600">Baseline (0)</text>
+
+        <!-- Axes -->
+        <line class="axis-main" x1="70" y1="40" x2="70" y2="460"></line>
+        <line class="axis-main" x1="70" y1="460" x2="850" y2="460"></line>
+
+        <text class="axis-label" x="70" y="28">G: GOOD FORTUNE (Better)</text>
+        <text class="axis-subtitle" x="260" y="28">Health, wealth, love, success</text>
+
+        <text class="axis-label" x="70" y="488">I / E: ILL FORTUNE (Worse)</text>
+        <text class="axis-subtitle" x="260" y="488">Danger, grief, isolation, failure</text>
+
+        <text class="axis-label" x="70" y="476">B: BEGINNING</text>
+        <text class="axis-label" x="800" y="476" text-anchor="end">E: END (Entropy)</text>
+
+        <g id="templates"></g>
+
+        <path id="userAreaGood" class="user-area-good" d=""></path>
+        <path id="userAreaBad" class="user-area-bad" d=""></path>
+
+        <path id="userCurveShadow" class="user-curve-shadow" d=""></path>
+        <path id="userCurve" class="user-curve-line" d=""></path>
+
+        <g id="bridgeMarkers"></g>
+        <g id="points"></g>
+
+        <!-- Hover Tooltip Container (sharp rect) -->
+        <g id="tooltipGroup" class="tooltip-box" style="opacity: 0; pointer-events: none;">
+          <rect id="tooltipBg" class="tooltip-bg" width="230" height="64" rx="0"></rect>
+          <text id="tooltipTitle" class="tooltip-title" x="12" y="18">Event 1</text>
+          <text id="tooltipSub" class="tooltip-sub" x="12" y="32">Time: 15% | Fortune: +2</text>
+          <text id="tooltipDesc" class="tooltip-desc" x="12" y="48">Event summary...</text>
+        </g>
+      </svg>
+    </div>
+
+    <div>
+      <div style="font-size:11.5px;font-weight:750;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">
+        Kurt Vonnegut Archetype Overlays (Click to toggle)
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <!-- Narrative Breakdown Log -->
+    <div class="story-narrative-log">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h3 style="margin:0;font-size:14px;color:var(--ink);">Story Narrative Log (Events &amp; In-Betweens)</h3>
+        <span style="font-size:10.5px;color:var(--muted);">Full chronological outline</span>
+      </div>
+      <div id="narrativeLogList"></div>
+    </div>
+  </section>
+</main>
+
+<div class="footer-note">
+  Curated for 7th Grade ELA classrooms studying plot structure, narrative arcs, and character development. Aligned with Texas Essential Knowledge and Skills (TEKS).
+</div>
+
+<script>
+// --- Archetype Definitions ---
+const shapes = {
+  "Man in Hole": {
+    desc: "Main character gets into trouble, then climbs out better than before.",
+    color: "#4338ca",
+    pts: [[0, 1.2], [18, 1], [38, -1.2], [55, -4.2], [72, -2.8], [88, 0.5], [100, 2.2]]
+  },
+  "Boy Meets Girl": {
+    desc: "Finds something wonderful, loses it, then regains it forever.",
+    color: "#db2777",
+    pts: [[0, 0], [18, 2.2], [35, 3.4], [55, -1.8], [72, -3.2], [86, 0.5], [100, 2.8]]
+  },
+  "Cinderella": {
+    desc: "Starts low, rises with temporary magic, plunges at midnight, achieves ultimate happiness.",
+    color: "#059669",
+    pts: [[0, -4], [16, -3], [30, -1.8], [45, 2], [60, 4.2], [68, -2], [82, -1], [92, 2.8], [100, 4.8]]
+  },
+  "From Bad to Worse": {
+    desc: "Pessimistic or tragic descent where circumstances continually deteriorate.",
+    color: "#dc2626",
+    pts: [[0, 0], [18, -0.8], [35, -1.6], [52, -2.5], [70, -3.4], [86, -4.2], [100, -4.8]]
+  },
+  "Good News / Bad News": {
+    desc: "Constant rollercoaster of unforeseen twists; ambiguity about whether events are good or bad.",
+    color: "#d97706",
+    pts: [[0, 0], [12, 1.8], [25, -1.2], [38, 1.6], [50, -1.8], [63, 2.0], [76, -1.5], [88, 1.2], [100, -0.4]]
+  }
+};
+
+// --- State ---
+let events = [];
+let activeShapes = new Set(["Man in Hole"]);
+let inBetweensExpanded = true;
+let mode = "review"; // 'review' or 'own'
+let dragging = null;
+let hoveredIndex = null;
+let isInitializing = true;
+const STORAGE_KEY = "vonnegutStoryShapePlotter_texas7th_v4";
+
+// DOM Elements
+const fortune = document.getElementById("fortune");
+const fortuneValue = document.getElementById("fortuneValue");
+const eventText = document.getElementById("eventText");
+const storyTitle = document.getElementById("storyTitle");
+const chart = document.getElementById("chart");
+
+// --- Coordinate Conversions ---
+function sx(percent) { return 70 + (Math.max(0, Math.min(100, percent)) / 100) * 780; }
+function sy(score) { return 250 - (Math.max(-5, Math.min(5, score)) / 5) * 200; }
+function invSx(px) { return Math.max(0, Math.min(100, ((px - 70) / 780) * 100)); }
+function invSy(py) { return Math.max(-5, Math.min(5, ((250 - py) / 200) * 5)); }
+
+// --- Fortune Descriptors (Literary scale instead of raw numbers) ---
+function getFortuneDescriptor(score) {
+  const s = Number(score);
+  if (s >= 4.25) return "Great Triumph";
+  if (s >= 2.5) return "Good Fortune";
+  if (s >= 1) return "Hopeful";
+  if (s > -1) return "Normal Baseline";
+  if (s > -2.5) return "Setback";
+  if (s > -4.25) return "Misfortune";
+  return "Rock Bottom / Crisis";
+}
+
+function getFortuneColor(score) {
+  const s = Number(score);
+  if (s >= 1) return "#059669";
+  if (s > -1) return "#475569";
+  return "#dc2626";
+}
+
+// --- Fortune Slider Label ---
+fortune.addEventListener("input", updateFortuneLabel);
+function updateFortuneLabel() {
+  const v = Number(fortune.value);
+  fortuneValue.textContent = getFortuneDescriptor(v);
+  fortuneValue.style.color = getFortuneColor(v);
+}
+updateFortuneLabel();
+
+// --- Mode Switching with Confirmation & Chart Clearing ---
+function setMode(next) {
+  if (mode === next) return;
+
+  // If leaving "Plan My Story" and there are events, prompt the student to double check they are saved
+  if (mode === "own" && events.length > 0) {
+    const confirmed = confirm(
+      "Are you sure? Double-check that your plan is saved before stepping away! Switching modes will clear your current plot."
+    );
+    if (!confirmed) return;
+  }
+
+  mode = next;
+  document.getElementById("reviewMode").classList.toggle("active", next === "review");
+  document.getElementById("ownMode").classList.toggle("active", next === "own");
+
+  // Clear chart when switching between modes
+  clearPlotData();
+  updateModeUI();
+
+  if (next === "review") {
+    // In review mode, load first story so students have a story to review immediately
+    loadExampleByIndex(0);
+  }
+
+  document.getElementById("insight").innerHTML =
+    next === "review"
+      ? "<strong>Review mode:</strong> Studying a story arc. Ask: <em>“What evidence makes this moment better or worse for the protagonist?”</em>"
+      : "<strong>Planning mode:</strong> Brainstorm your major turning points. Focus on the emotional movement and in-between transitions before writing!";
+
+  savePlanToBrowser();
+}
+
+function updateModeUI() {
+  const isReview = (mode === "review");
+  const reviewSec = document.getElementById("reviewStorySelectSection");
+  const planSec = document.getElementById("planCreationSection");
+
+  if (reviewSec) reviewSec.style.display = isReview ? "block" : "none";
+  if (planSec) planSec.style.display = isReview ? "none" : "block";
+
+  if (storyTitle) {
+    storyTitle.readOnly = isReview;
+    storyTitle.style.backgroundColor = isReview ? "#f1f5f9" : "#ffffff";
+    storyTitle.style.cursor = isReview ? "default" : "text";
+    storyTitle.placeholder = isReview ? "(Select a story below to review)" : "Example: The Lost Map...";
+  }
+
+  const canvasSub = document.querySelector(".canvas-toolbar div");
+  if (canvasSub) {
+    canvasSub.textContent = isReview
+      ? "Reviewing story arc • Hover points & click ✦ badges to inspect In-Betweens"
+      : "Drag dots to reshape • Click ✦ badges to write In-Betweens";
+  }
+}
+
+function clearPlotData() {
+  events = [];
+  storyTitle.value = "";
+  activeShapes.clear();
+  const select = document.getElementById("exampleSelect");
+  if (select) select.value = "";
+  render();
+}
+
+
+function toggleAllInBetweens() {
+  inBetweensExpanded = !inBetweensExpanded;
+  document.getElementById("btnToggleAllInBetweens").textContent = inBetweensExpanded ? "Collapse In-Betweens" : "Expand In-Betweens";
+  document.querySelectorAll(".inbetween-textarea").forEach(el => {
+    el.style.display = inBetweensExpanded ? "block" : "none";
+  });
+}
+
+// --- Monotone Spline (Fritsch-Carlson) & Midpoints ---
+function computeSplineSegments(pts) {
+  const n = pts.length;
+  if (n < 2) return [];
+
+  const dx = [];
+  const dy = [];
+  const m = [];
+  for (let i = 0; i < n - 1; i++) {
+    const deltaX = pts[i + 1].x - pts[i].x;
+    const deltaY = pts[i + 1].y - pts[i].y;
+    dx.push(deltaX);
+    dy.push(deltaY);
+    m.push(deltaX === 0 ? 0 : deltaY / deltaX);
+  }
+
+  const tangents = [m[0]];
+  for (let i = 1; i < n - 1; i++) {
+    if (m[i - 1] * m[i] <= 0) {
+      tangents.push(0);
+    } else {
+      tangents.push((m[i - 1] + m[i]) / 2);
+    }
+  }
+  tangents.push(m[m.length - 1]);
+
+  const segments = [];
+  for (let i = 0; i < n - 1; i++) {
+    const span = dx[i] / 3;
+    const p1 = pts[i];
+    const c1 = { x: pts[i].x + span, y: pts[i].y + tangents[i] * span };
+    const c2 = { x: pts[i + 1].x - span, y: pts[i + 1].y - tangents[i + 1] * span };
+    const p2 = pts[i + 1];
+
+    const midX = 0.125 * p1.x + 0.375 * c1.x + 0.375 * c2.x + 0.125 * p2.x;
+    const midY = 0.125 * p1.y + 0.375 * c1.y + 0.375 * c2.y + 0.125 * p2.y;
+
+    segments.push({ p1, c1, c2, p2, midX, midY });
+  }
+  return segments;
+}
+
+function monotoneSplinePath(points) {
+  if (!points || points.length === 0) return "";
+  if (points.length === 1) return `M ${sx(points[0][0])} ${sy(points[0][1])}`;
+
+  const pts = points.map(p => ({ x: sx(p[0]), y: sy(p[1]) }));
+  if (pts.length === 2) {
+    return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`;
+  }
+
+  const segments = computeSplineSegments(pts);
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (const seg of segments) {
+    d += ` C ${seg.c1.x.toFixed(2)} ${seg.c1.y.toFixed(2)}, ${seg.c2.x.toFixed(2)} ${seg.c2.y.toFixed(2)}, ${seg.p2.x.toFixed(2)} ${seg.p2.y.toFixed(2)}`;
+  }
+  return d;
+}
+
+function linePath(points) {
+  if (!points || !points.length) return "";
+  let d = `M ${sx(points[0][0])} ${sy(points[0][1])}`;
+  for (let i = 1; i < points.length; i++) {
+    d += ` L ${sx(points[i][0])} ${sy(points[i][1])}`;
+  }
+  return d;
+}
+
+// --- Grid Rendering ---
+function renderGrid() {
+  const g = document.getElementById("grid");
+  let html = "";
+  for (let s = -5; s <= 5; s++) {
+    const y = sy(s);
+    if (s !== 0) {
+      html += `<line class="grid-line" x1="70" y1="${y}" x2="850" y2="${y}"></line>`;
+    }
+  }
+
+  // Key descriptors on the vertical fortune axis instead of numbers
+  const yDescriptors = [
+    { s: 5, label: "Triumph" },
+    { s: 3, label: "Good Fortune" },
+    { s: 1, label: "Hopeful" },
+    { s: -1, label: "Setback" },
+    { s: -3, label: "Misfortune" },
+    { s: -5, label: "Crisis" }
+  ];
+
+  yDescriptors.forEach(item => {
+    const y = sy(item.s);
+    html += `<text class="tick-text" x="65" y="${y + 3.5}" text-anchor="end" style="font-size:8.5px;font-weight:700;fill:#64748b;">${item.label}</text>`;
+  });
+
+  for (let t = 20; t <= 80; t += 20) {
+    const x = sx(t);
+    html += `<line class="grid-line" x1="${x}" y1="40" x2="${x}" y2="460"></line>`;
+    html += `<text class="tick-text" x="${x}" y="476" text-anchor="middle">${t}%</text>`;
+  }
+  g.innerHTML = html;
+}
+
+// --- Template Archetypes Rendering ---
+function renderTemplates() {
+  const t = document.getElementById("templates");
+  let html = "";
+  Object.keys(shapes).forEach((name) => {
+    if (activeShapes.has(name)) {
+      const sh = shapes[name];
+      const pathD = monotoneSplinePath(sh.pts);
+      html += `<path id="tpl-${name.replace(/\s+/g,'-')}" class="template-path" d="${pathD}" stroke="${sh.color}"></path>`;
+    }
+  });
+  t.innerHTML = html;
+
+  const legend = document.getElementById("legend");
+  legend.innerHTML = Object.keys(shapes).map((name) => {
+    const sh = shapes[name];
+    const active = activeShapes.has(name) ? "active" : "";
+    return `
+      <div class="legend-item ${active}"
+           onclick="toggleShape('${name.replace(/'/g, "\\'")}')"
+           onmouseenter="highlightTemplate('${name.replace(/'/g, "\\'")}', true)"
+           onmouseleave="highlightTemplate('${name.replace(/'/g, "\\'")}', false)"
+           title="${sh.desc}">
+        <span class="legend-color-dot" style="background:${sh.color};"></span>
+        <span>${name}</span>
+      </div>`;
+  }).join("");
+}
+
+function highlightTemplate(name, isHighlight) {
+  const elem = document.getElementById(`tpl-${name.replace(/\s+/g,'-')}`);
+  if (elem) elem.classList.toggle("highlighted", isHighlight);
+}
+
+function toggleShape(name) {
+  if (activeShapes.has(name)) {
+    activeShapes.delete(name);
+  } else {
+    activeShapes.add(name);
+  }
+  renderTemplates();
+  savePlanToBrowser();
+}
+
+function toggleAllShapes() {
+  if (activeShapes.size === Object.keys(shapes).length) {
+    activeShapes.clear();
+  } else {
+    activeShapes = new Set(Object.keys(shapes));
+  }
+  renderTemplates();
+  savePlanToBrowser();
+}
+
+// --- Chronological Ordering ---
+function chronologicalEvents() {
+  return events
+    .map((e, originalIndex) => ({ ...e, originalIndex }))
+    .sort((a, b) => (a.time - b.time) || (a.originalIndex - b.originalIndex));
+}
+
+// --- Render User Story Curve ---
+function renderUserCurve() {
+  const pathElem = document.getElementById("userCurve");
+  const shadowElem = document.getElementById("userCurveShadow");
+  const areaGood = document.getElementById("userAreaGood");
+  const areaBad = document.getElementById("userAreaBad");
+
+  const ordered = chronologicalEvents();
+  if (ordered.length === 0) {
+    pathElem.setAttribute("d", "");
+    shadowElem.setAttribute("d", "");
+    areaGood.setAttribute("d", "");
+    areaBad.setAttribute("d", "");
+    return;
+  }
+
+  const rawPts = ordered.map(e => [e.time, e.score]);
+  const curveD = rawPts.length > 2
+    ? monotoneSplinePath(rawPts)
+    : linePath(rawPts);
+
+  pathElem.setAttribute("d", curveD);
+  shadowElem.setAttribute("d", curveD);
+
+  if (ordered.length >= 2) {
+    const firstX = sx(ordered[0].time);
+    const lastX = sx(ordered[ordered.length - 1].time);
+    const baselineY = sy(0);
+    const fullAreaD = `${curveD} L ${lastX} ${baselineY} L ${firstX} ${baselineY} Z`;
+    areaGood.setAttribute("d", fullAreaD);
+    areaBad.setAttribute("d", fullAreaD);
+  } else {
+    areaGood.setAttribute("d", "");
+    areaBad.setAttribute("d", "");
+  }
+}
+
+// --- Render In-Between Bridge Markers on the Arc ---
+function renderBridgeMarkers() {
+  const g = document.getElementById("bridgeMarkers");
+  if (events.length < 2) {
+    g.innerHTML = "";
+    return;
+  }
+
+  const ordered = chronologicalEvents();
+  const pts = ordered.map(e => ({ x: sx(e.time), y: sy(e.score) }));
+
+  let midpoints = [];
+  if (pts.length > 2) {
+    const segments = computeSplineSegments(pts);
+    midpoints = segments.map(seg => ({ x: seg.midX, y: seg.midY }));
+  } else {
+    for (let i = 0; i < pts.length - 1; i++) {
+      midpoints.push({
+        x: (pts[i].x + pts[i + 1].x) / 2,
+        y: (pts[i].y + pts[i + 1].y) / 2
+      });
+    }
+  }
+
+  let html = "";
+  for (let i = 0; i < ordered.length - 1; i++) {
+    const fromItem = ordered[i];
+    const toItem = ordered[i + 1];
+    const mid = midpoints[i];
+    const hasNote = Boolean(fromItem.inBetween && fromItem.inBetween.trim());
+
+    html += `
+      <g class="bridge-node ${hasNote ? 'has-note' : ''}"
+         data-bridge-from="${fromItem.originalIndex}"
+         transform="translate(${mid.x.toFixed(1)} ${mid.y.toFixed(1)})"
+         onmouseenter="showBridgeTooltip(${fromItem.originalIndex}, ${toItem.originalIndex}, ${mid.x}, ${mid.y})"
+         onmouseleave="hideTooltip()"
+         onclick="scrollToInBetween(${fromItem.originalIndex})">
+        <circle class="bridge-circle" r="8"></circle>
+        <text class="bridge-icon">${hasNote ? '✦' : '+'}</text>
+      </g>`;
+  }
+  g.innerHTML = html;
+}
+
+function showBridgeTooltip(fromIdx, toIdx, midX, midY) {
+  const fromEvent = events[fromIdx];
+  const toEvent = events[toIdx];
+  if (!fromEvent || !toEvent) return;
+
+  const tooltipGroup = document.getElementById("tooltipGroup");
+  const title = document.getElementById("tooltipTitle");
+  const sub = document.getElementById("tooltipSub");
+  const desc = document.getElementById("tooltipDesc");
+
+  title.textContent = `In-Between: Event #${fromIdx + 1} ➔ Event #${toIdx + 1}`;
+  sub.textContent = `Timing: ${fromEvent.time}% – ${toEvent.time}% of story`;
+
+  const note = fromEvent.inBetween && fromEvent.inBetween.trim();
+  if (note) {
+    const preview = note.length > 65 ? note.substring(0, 62) + "..." : note;
+    desc.textContent = `“${preview}”`;
+  } else {
+    desc.textContent = "Click to write what happened between these moments!";
+  }
+
+  let tx = midX - 115;
+  let ty = midY - 76;
+  if (tx < 75) tx = 75;
+  if (tx + 230 > 845) tx = 845 - 230;
+  if (ty < 45) ty = midY + 16;
+
+  tooltipGroup.setAttribute("transform", `translate(${tx} ${ty})`);
+  tooltipGroup.style.opacity = "1";
+
+  document.querySelectorAll(".inbetween-block").forEach(b => b.classList.remove("active-inbetween"));
+  const card = document.getElementById(`inbetweenBlock-${fromIdx}`);
+  if (card) card.classList.add("active-inbetween");
+}
+
+function scrollToInBetween(originalIdx) {
+  const input = document.getElementById(`inbetweenText-${originalIdx}`);
+  const card = document.getElementById(`inbetweenBlock-${originalIdx}`);
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!inBetweensExpanded) toggleAllInBetweens();
+    if (input) {
+      setTimeout(() => input.focus(), 250);
+    }
+  }
+}
+
+// --- Major Points Rendering ---
+function renderPoints() {
+  const g = document.getElementById("points");
+  if (!events.length) { g.innerHTML = ""; return; }
+
+  const isReview = (mode === "review");
+  let html = "";
+  events.forEach((e, i) => {
+    const x = sx(e.time);
+    const y = sy(e.score);
+    const isHovered = hoveredIndex === i;
+    const isDraggingThis = dragging === i;
+
+    html += `
+      <g class="point-group ${isDraggingThis ? 'active-drag' : ''}" data-index="${i}"
+         style="cursor:${isReview ? 'pointer' : 'grab'};"
+         transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"
+         onpointerdown="startDrag(event, ${i})"
+         onpointerenter="showTooltip(${i})"
+         onpointerleave="hideTooltip()">
+        <circle class="point-hit" r="22"></circle>
+        <circle class="point-halo" r="${isHovered || isDraggingThis ? 18 : 12}"></circle>
+        <circle class="point-circle" r="${isHovered || isDraggingThis ? 8.5 : 7}"></circle>
+        <text class="point-tag" y="0">${i + 1}</text>
+      </g>`;
+  });
+  g.innerHTML = html;
+}
+
+function showTooltip(i) {
+  hoveredIndex = i;
+  const e = events[i];
+  if (!e) return;
+
+  const tooltipGroup = document.getElementById("tooltipGroup");
+  const title = document.getElementById("tooltipTitle");
+  const sub = document.getElementById("tooltipSub");
+  const desc = document.getElementById("tooltipDesc");
+
+  title.textContent = `Event #${i + 1}`;
+  sub.textContent = `Timing: ${e.time}% • Fortune: ${getFortuneDescriptor(e.score)}`;
+
+  const textPreview = e.text.length > 55 ? e.text.substring(0, 52) + "..." : e.text;
+  desc.textContent = textPreview || "(No description)";
+
+  const px = sx(e.time);
+  const py = sy(e.score);
+  let tx = px - 115;
+  let ty = py - 76;
+
+  if (tx < 75) tx = 75;
+  if (tx + 230 > 845) tx = 845 - 230;
+  if (ty < 45) ty = py + 16;
+
+  tooltipGroup.setAttribute("transform", `translate(${tx} ${ty})`);
+  tooltipGroup.style.opacity = "1";
+
+  highlightEventCard(i, true);
+}
+
+function hideTooltip() {
+  if (dragging === null) {
+    hoveredIndex = null;
+    const tooltipGroup = document.getElementById("tooltipGroup");
+    if (tooltipGroup) tooltipGroup.style.opacity = "0";
+    document.querySelectorAll(".event").forEach(el => el.classList.remove("active-event"));
+    document.querySelectorAll(".inbetween-block").forEach(b => b.classList.remove("active-inbetween"));
+  }
+}
+
+function highlightEventCard(i, isHighlighted) {
+  document.querySelectorAll(".event").forEach((el, idx) => {
+    el.classList.toggle("active-event", isHighlighted && idx === i);
+  });
+}
+
+// --- Drag and Drop Logic ---
+function startDrag(e, i) {
+  if (mode === "review") {
+    showTooltip(i);
+    return; // Read-only in review mode
+  }
+  dragging = i;
+  hoveredIndex = i;
+  showTooltip(i);
+  e.currentTarget.setPointerCapture(e.pointerId);
+}
+
+chart.addEventListener("pointermove", (e) => {
+  if (dragging === null) return;
+
+  const pt = chart.createSVGPoint();
+  pt.x = e.clientX;
+  pt.y = e.clientY;
+  const ctm = chart.getScreenCTM().inverse();
+  const loc = pt.matrixTransform(ctm);
+
+  let newTime = Math.round(invSx(loc.x));
+  newTime = Math.max(0, Math.min(100, newTime));
+
+  let rawScore = invSy(loc.y);
+  let newScore = Math.round(rawScore * 2) / 2;
+  newScore = Math.max(-5, Math.min(5, newScore));
+
+  events[dragging].time = newTime;
+  events[dragging].score = newScore;
+
+  updatePointNodeVisual(dragging);
+  renderUserCurve();
+  renderBridgeMarkers();
+  updateEventListItem(dragging);
+  showTooltip(dragging);
+  updateInsight();
+});
+
+function endDrag() {
+  if (dragging !== null) {
+    dragging = null;
+    hideTooltip();
+    render();
+    savePlanToBrowser();
+  }
+}
+
+chart.addEventListener("pointerup", endDrag);
+chart.addEventListener("pointercancel", endDrag);
+
+function updatePointNodeVisual(i) {
+  const node = document.querySelector(`.point-group[data-index="${i}"]`);
+  if (!node) return;
+  const e = events[i];
+  node.setAttribute("transform", `translate(${sx(e.time).toFixed(1)} ${sy(e.score).toFixed(1)})`);
+}
+
+function updateEventListItem(i) {
+  const e = events[i];
+  const timeSlider = document.getElementById(`timeSlider-${i}`);
+  const timeLabel = document.getElementById(`timeLabel-${i}`);
+  const fortuneSlider = document.getElementById(`listFortuneSlider-${i}`);
+  const scoreLabel = document.getElementById(`scoreLabel-${i}`);
+
+  if (timeSlider) timeSlider.value = e.time;
+  if (timeLabel) timeLabel.textContent = `${e.time}%`;
+  if (fortuneSlider) fortuneSlider.value = e.score;
+  if (scoreLabel) scoreLabel.textContent = getFortuneDescriptor(e.score);
+}
+
+// --- List UI & In-Between Editing ---
+function renderList() {
+  const list = document.getElementById("eventList");
+  const ordered = chronologicalEvents();
+  const isReview = (mode === "review");
+
+  if (ordered.length === 0) {
+    list.innerHTML = "";
+    document.getElementById("eventCountBadge").textContent = "0 events";
+    document.getElementById("inBetweenCountBadge").textContent = "0 in-betweens";
+    renderNarrativeLog();
+    return;
+  }
+
+  let html = "";
+  let writtenBridgesCount = 0;
+
+  ordered.forEach((item, idx) => {
+    const i = item.originalIndex;
+    html += `
+      <div class="event" id="eventCard-${i}"
+           onmouseenter="showTooltip(${i})"
+           onmouseleave="hideTooltip()">
+        <div class="num">${i + 1}</div>
+        <div>
+          <div class="event-text" contenteditable="${isReview ? 'false' : 'true'}" spellcheck="false"
+               ${isReview ? '' : `onblur="updateEventText(${i}, this.textContent)"`}
+               title="${isReview ? '' : 'Click to edit event text'}">${escapeHtml(item.text)}</div>
+          ${isReview ? `
+            <div style="font-size:10.5px;color:var(--muted);margin-top:5px;font-weight:600;">
+              Timing: <strong>${item.time}%</strong> • Fortune: <strong style="color:${getFortuneColor(item.score)};">${getFortuneDescriptor(item.score)}</strong>
+            </div>
+          ` : `
+            <div class="event-controls">
+              <div class="event-control-item">
+                <div><span>When?</span><strong id="timeLabel-${i}">${item.time}%</strong></div>
+                <input id="timeSlider-${i}" type="range" min="0" max="100" value="${item.time}"
+                       oninput="updateEventTime(${i}, this.value)">
+              </div>
+              <div class="event-control-item">
+                <div><span>Fortune</span><strong id="scoreLabel-${i}">${getFortuneDescriptor(item.score)}</strong></div>
+                <input id="listFortuneSlider-${i}" type="range" min="-5" max="5" step="0.5" value="${item.score}"
+                       oninput="updateEventScore(${i}, this.value)">
+              </div>
+            </div>
+          `}
+        </div>
+        ${isReview ? '' : `
+          <button class="delete-btn" aria-label="Delete event" onclick="deleteEvent(${i})" title="Delete event">×</button>
+        `}
+      </div>`;
+
+    if (idx < ordered.length - 1) {
+      const nextItem = ordered[idx + 1];
+      const hasContent = Boolean(item.inBetween && item.inBetween.trim());
+      if (hasContent) writtenBridgesCount++;
+
+      html += `
+        <div class="inbetween-block ${hasContent ? 'has-content' : ''}" id="inbetweenBlock-${i}">
+          <div class="inbetween-header">
+            <div class="inbetween-header-left">
+              <span class="inbetween-icon-badge">IN-BETWEEN</span>
+              <span>Event #${i + 1} ➔ #${nextItem.originalIndex + 1}</span>
+            </div>
+            <span style="font-size:10px;color:var(--muted);">${item.time}% – ${nextItem.time}%</span>
+          </div>
+          <textarea class="inbetween-textarea" id="inbetweenText-${i}"
+            ${isReview ? 'readonly style="display:' + (inBetweensExpanded ? 'block' : 'none') + ';background:#f8fafc;cursor:default;"' : 'style="display:' + (inBetweensExpanded ? 'block' : 'none') + ';"'}
+            placeholder="${isReview ? '(No in-between summary recorded)' : 'What happened between Event #' + (i + 1) + ' and #' + (nextItem.originalIndex + 1) + '? (e.g., travel, rising tension, new decisions, time jump...)'}"
+            ${isReview ? '' : 'oninput="updateInBetweenText(' + i + ', this.value)"'}>${escapeHtml(item.inBetween || "")}</textarea>
+        </div>`;
+    }
+  });
+
+  list.innerHTML = html;
+
+  document.getElementById("eventCountBadge").textContent = `${events.length} ${events.length === 1 ? "event" : "events"}`;
+  const totalBridges = Math.max(0, events.length - 1);
+  document.getElementById("inBetweenCountBadge").textContent = `${writtenBridgesCount}/${totalBridges} in-betweens`;
+
+  renderNarrativeLog();
+}
+
+function updateInBetweenText(originalIdx, text) {
+  events[originalIdx].inBetween = text;
+  const block = document.getElementById(`inbetweenBlock-${originalIdx}`);
+  if (block) block.classList.toggle("has-content", Boolean(text.trim()));
+
+  const ordered = chronologicalEvents();
+  let written = 0;
+  for (let i = 0; i < ordered.length - 1; i++) {
+    if (ordered[i].inBetween && ordered[i].inBetween.trim()) written++;
+  }
+  document.getElementById("inBetweenCountBadge").textContent = `${written}/${Math.max(0, events.length - 1)} in-betweens`;
+
+  renderBridgeMarkers();
+  renderNarrativeLog();
+  savePlanToBrowser();
+}
+
+function updateEventTime(i, val) {
+  events[i].time = Number(val);
+  const timeLabel = document.getElementById(`timeLabel-${i}`);
+  if (timeLabel) timeLabel.textContent = `${events[i].time}%`;
+  updatePointNodeVisual(i);
+  renderUserCurve();
+  renderBridgeMarkers();
+  renderList();
+  updateInsight();
+  savePlanToBrowser();
+}
+
+function updateEventScore(i, val) {
+  events[i].score = Number(val);
+  const scoreLabel = document.getElementById(`scoreLabel-${i}`);
+  if (scoreLabel) scoreLabel.textContent = getFortuneDescriptor(events[i].score);
+  updatePointNodeVisual(i);
+  renderUserCurve();
+  renderBridgeMarkers();
+  updateInsight();
+  savePlanToBrowser();
+}
+
+function updateEventText(i, newText) {
+  events[i].text = newText.trim() || events[i].text;
+  renderNarrativeLog();
+  savePlanToBrowser();
+}
+
+function addEvent() {
+  const text = eventText.value.trim();
+  if (!text) {
+    eventText.focus();
+    return;
+  }
+  const autoTime = events.length === 0 ? 8 : Math.min(96, Math.round(events[events.length - 1].time + 14));
+  events.push({
+    text,
+    score: Number(fortune.value),
+    time: autoTime,
+    inBetween: ""
+  });
+
+  eventText.value = "";
+  fortune.value = 0;
+  updateFortuneLabel();
+  render();
+  eventText.focus();
+}
+
+function deleteEvent(i) {
+  events.splice(i, 1);
+  render();
+}
+
+function clearAll() {
+  if (events.length && !confirm("Clear all events and in-betweens to start a fresh plot?")) return;
+  clearPlotData();
+}
+
+// --- Narrative Log for Review & Printing ---
+function renderNarrativeLog() {
+  const container = document.getElementById("narrativeLogList");
+  if (!container) return;
+
+  const ordered = chronologicalEvents();
+  if (ordered.length === 0) {
+    container.innerHTML = `<div style="font-size:11.5px;color:var(--muted);font-style:italic;">No narrative plotted yet.</div>`;
+    return;
+  }
+
+  let html = "";
+  ordered.forEach((item, idx) => {
+    html += `
+      <div class="narrative-log-item">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:var(--muted);margin-bottom:3px;">
+          <span>EVENT #${item.originalIndex + 1} (${item.time}% of story)</span>
+          <span style="color:${getFortuneColor(item.score)};">Fortune: ${getFortuneDescriptor(item.score)}</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink);">${escapeHtml(item.text)}</div>
+      </div>`;
+
+    if (idx < ordered.length - 1) {
+      const nextItem = ordered[idx + 1];
+      const inBetweenText = item.inBetween && item.inBetween.trim();
+      html += `
+        <div class="narrative-log-bridge">
+          <div style="font-size:9.5px;font-weight:750;letter-spacing:0.04em;text-transform:uppercase;color:#0284c7;margin-bottom:2px;">
+            ↳ In-Between (Event #${item.originalIndex + 1} ➔ #${nextItem.originalIndex + 1})
+          </div>
+          <div style="font-style:${inBetweenText ? 'normal' : 'italic'};color:${inBetweenText ? '#0c4a6e' : '#94a3b8'};">
+            ${inBetweenText ? escapeHtml(inBetweenText) : '(No in-between summary noted yet)'}
+          </div>
+        </div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+// --- Archetype Best Match Analysis ---
+function nearestShape() {
+  if (events.length < 3) return null;
+  const ordered = chronologicalEvents().map(e => [e.time, e.score]);
+  let best = { name: null, score: Infinity };
+
+  Object.keys(shapes).forEach(name => {
+    const tpl = shapes[name].pts;
+    let totalError = 0;
+
+    ordered.forEach(u => {
+      const x = u[0];
+      let j = 0;
+      while (j < tpl.length - 1 && tpl[j + 1][0] < x) j++;
+      const a = tpl[j];
+      const b = tpl[Math.min(j + 1, tpl.length - 1)];
+      const span = (b[0] - a[0]) || 1;
+      const frac = Math.max(0, Math.min(1, (x - a[0]) / span));
+      const interpolatedY = a[1] + (b[1] - a[1]) * frac;
+      totalError += Math.pow(u[1] - interpolatedY, 2);
+    });
+
+    const rmse = Math.sqrt(totalError / ordered.length);
+    if (rmse < best.score) best = { name, score: rmse };
+  });
+  return best;
+}
+
+function updateInsight() {
+  const box = document.getElementById("insight");
+  if (events.length < 3) {
+    box.innerHTML = "Add <strong>3–5 major events</strong> across the beginning, middle, and end to begin seeing the narrative arc.";
+    return;
+  }
+
+  const ordered = chronologicalEvents();
+  const first = ordered[0].score;
+  const last = ordered[ordered.length - 1].score;
+  const minScore = Math.min(...events.map(e => e.score));
+  const maxScore = Math.max(...events.map(e => e.score));
+  const lowestPt = ordered.find(e => e.score === minScore);
+  const highestPt = ordered.find(e => e.score === maxScore);
+  const guess = nearestShape();
+
+  const startDesc = first > 0.5 ? "positive fortune" : first < -0.5 ? "struggle / low fortune" : "neutral baseline";
+  const endDesc = last > 0.5 ? "triumph / higher fortune" : last < -0.5 ? "loss / low fortune" : "neutral resolution";
+
+  box.innerHTML =
+    `This narrative begins in <strong>${startDesc}</strong> and concludes in <strong>${endDesc}</strong>.<br>` +
+    `• Lowest crisis point: <strong>Event #${lowestPt.originalIndex + 1}</strong> (${getFortuneDescriptor(lowestPt.score)}) around ${lowestPt.time}% of the story.<br>` +
+    `• Peak high point: <strong>Event #${highestPt.originalIndex + 1}</strong> (${getFortuneDescriptor(highestPt.score)}) around ${highestPt.time}% of the story.<br><br>` +
+    `<strong>Check yourself:</strong> <em>“Check your in-betweens: what rising actions or choices drove the character from the lowest point to the highest?”</em>` +
+    (guess ? `<br><br>🎯 <strong>Closest Vonnegut Archetype:</strong> <span style="color:${shapes[guess.name].color};font-weight:750;">${guess.name}</span> (${shapes[guess.name].desc})` : "");
+}
+
+// --- 40 Curated Classroom Stories (Carefully selected for Texas 7th Grade ELA & TEKS alignment) ---
+// Free from controversial / challenged lists; focusing on classic literature, middle school staples, and Greek myths.
+const exampleLibrary = [
+  {
+    title: "1. Holes (Louis Sachar)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Stanley is falsely accused of stealing shoes and sent to court.", score: -3, time: 6, inBetween: "Stanley is sentenced and endures a grueling 8-hour bus ride into the scorching Texas wasteland." },
+      { text: "Sent to Camp Green Lake where boys dig 5-foot holes daily in the desert.", score: -4.5, time: 20, inBetween: "Weeks pass in the heat. Stanley earns the nickname Caveman and agrees to teach Zero to read." },
+      { text: "Stanley finds Kate Barlow's gold lipstick tube in the dirt.", score: 1, time: 42, inBetween: "The Warden grows obsessed, driving the boys until tensions boil and Zero runs away into the desert." },
+      { text: "Zero flees; Stanley steals the water truck to rescue his friend.", score: -3.5, time: 64, inBetween: "Stanley hikes across the salt flats, finds Zero under the Mary Lou, and carries him up God's Thumb." },
+      { text: "They survive on onions, uncover the buried trunk, and break the family curse.", score: 4, time: 84, inBetween: "Lawyers arrive with Stanley's attorney, catching the Warden trying to steal the boys' treasure." },
+      { text: "Stanley is fully exonerated and reunited with his loving family.", score: 5, time: 96, inBetween: "" }
+    ]
+  },
+  {
+    title: "2. The Lightning Thief (Rick Riordan)",
+    shape: "Boy Meets Girl",
+    events: [
+      { text: "Percy discovers he is a demigod accused of stealing Zeus's Master Bolt.", score: -1.5, time: 8, inBetween: "His mother is captured by the Minotaur, and Percy is taken to Camp Half-Blood for training." },
+      { text: "Finds true friends in Annabeth and Grover and accepts his epic quest.", score: 3, time: 30, inBetween: "The trio travels west across America, outwitting Medusa, the Chimera, and the Lotus Casino." },
+      { text: "Enters the Underworld and is trapped before Hades without the bolt.", score: -4, time: 68, inBetween: "Percy realizes Ares framed him, escapes using magic pearls, and duels the God of War on the beach." },
+      { text: "Defeats Ares, returns the Master Bolt to Olympus, and saves the world.", score: 4.5, time: 96, inBetween: "" }
+    ]
+  },
+  {
+    title: "3. Hatchet (Gary Paulsen)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Brian flies in a bush plane while wrestling with his parents' divorce.", score: -1.5, time: 6, inBetween: "The pilot suffers a fatal heart attack, forcing Brian to crash-land the plane into an L-shaped lake." },
+      { text: "Stranded alone in the Canadian wilderness with only a hatchet.", score: -5, time: 20, inBetween: "Brian battles mosquito swarms, hunger cramps, and despair before realizing self-pity will not save him." },
+      { text: "Learns how to strike sparks with his hatchet to make fire and catch food.", score: 2, time: 55, inBetween: "A fierce tornado rips through the lake overnight, destroying his shelter and flipping the submerged plane." },
+      { text: "A moose attacks and a tornado destroys his camp, testing his resolve.", score: -2.5, time: 74, inBetween: "Brian builds a raft, chops into the fuselage, and retrieves the survival transmitter from the wreckage." },
+      { text: "Flips the emergency beacon, is rescued, and returns home mentally transformed.", score: 4.5, time: 96, inBetween: "" }
+    ]
+  },
+  {
+    title: "4. The Hobbit (J.R.R. Tolkien)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Bilbo Baggins lives a quiet, comfortable life in his hobbit-hole at Bag End.", score: 2, time: 6, inBetween: "Gandalf and thirteen dwarves arrive unexpectedly, inviting Bilbo on a perilous quest for dragon treasure." },
+      { text: "Encountering trolls, goblins, and wargs across the dangerous Misty Mountains.", score: -2.5, time: 28, inBetween: "Bilbo gets lost in the dark goblin tunnels, finds a mysterious ring, and outsmarts Gollum in a riddle game." },
+      { text: "Rescues the dwarves from giant spiders in Mirkwood and proves his bravery.", score: 2, time: 56, inBetween: "The company reaches the Lonely Mountain, where Bilbo sneaks into the lair of Smaug the dragon." },
+      { text: "Smaug attacks Lake-town and the Battle of Five Armies breaks out.", score: -3.5, time: 78, inBetween: "The armies unite to defeat the goblins, while Bilbo survives by wearing his invisibility ring." },
+      { text: "Bilbo returns home to the Shire wiser, bolder, and respected.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "5. A Christmas Carol (Charles Dickens)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Ebenezer Scrooge is a bitter, cold-hearted miser who despises Christmas.", score: -2, time: 6, inBetween: "On Christmas Eve, the chained ghost of Jacob Marley appears to warn Scrooge of his impending doom." },
+      { text: "Ghost of Christmas Past reveals lost love and early innocence.", score: 0, time: 28, inBetween: "The Ghost of Christmas Present shows Tiny Tim's loving family celebrating with joy despite illness." },
+      { text: "Ghost of Christmas Yet to Come shows Scrooge's lonely, unmourned grave.", score: -5, time: 70, inBetween: "Scrooge falls to his knees, begging the Spirit for a chance to change his life and make amends." },
+      { text: "Awakes on Christmas morning a joyful, generous, transformed benefactor.", score: 5, time: 96, inBetween: "" }
+    ]
+  },
+  {
+    title: "6. Cinderella (Classic Folk Tale)",
+    shape: "Cinderella",
+    events: [
+      { text: "Cinderella is mistreated and forced into servitude by her wicked stepfamily.", score: -4, time: 6, inBetween: "The royal palace announces a grand ball; Cinderella helps her stepsisters dress while weeping alone." },
+      { text: "Fairy Godmother transforms her rags into a gown and pumpkin into a coach.", score: 3.5, time: 45, inBetween: "She arrives at the palace, capturing the breathless attention of everyone in the royal ballroom." },
+      { text: "Dances with the Prince and captures his heart.", score: 4.5, time: 60, inBetween: "The clock strikes midnight; she flees down the marble steps, dropping a single glass slipper." },
+      { text: "Midnight strikes; magic dissolves and she returns to rags by the hearth.", score: -2.5, time: 70, inBetween: "The Prince searches every home with the slipper, while the stepsisters try in vain to squeeze inside." },
+      { text: "The glass slipper fits her foot perfectly; she marries the prince in triumph.", score: 5, time: 96, inBetween: "" }
+    ]
+  },
+  {
+    title: "7. The Odyssey (Homer)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Odysseus departs victorious from Troy, eager to return home to Ithaca.", score: 3, time: 6, inBetween: "He incurs the wrath of Poseidon after blinding the Cyclops Polyphemus on his journey." },
+      { text: "Loses his fleet and crew to sea monsters and is stranded on Calypso's island.", score: -5, time: 50, inBetween: "Athena persuades Zeus to release him; the Phaeacians provide a ship back to Ithaca." },
+      { text: "Returns in secret disguised as an old beggar to assess his kingdom.", score: 0.5, time: 76, inBetween: "He observes the arrogant suitors consuming his estate and planning to usurp his throne." },
+      { text: "Strings his great bow, defeats the suitors, and reclaims his throne with Penelope.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "8. The Lion, the Witch and the Wardrobe (C.S. Lewis)",
+    shape: "Cinderella",
+    events: [
+      { text: "The Pevensie children are evacuated to a quiet country house during WWII.", score: 0, time: 6, inBetween: "Lucy steps through an old wardrobe and discovers the snowy, enchanted world of Narnia." },
+      { text: "Discover Narnia is trapped in an eternal winter by the evil White Witch.", score: -3, time: 30, inBetween: "Edmund is tempted by Turkish Delight and betrays his siblings to the White Witch." },
+      { text: "The mighty lion Aslan returns, offering hope and counsel to the children.", score: 3.5, time: 58, inBetween: "Aslan offers himself in Edmund's place on the Stone Table to satisfy the Deep Magic." },
+      { text: "Aslan is sacrificed on the Stone Table by the White Witch.", score: -4.5, time: 74, inBetween: "Deals with ancient magic: Aslan resurrects more powerful than before and frees the stone statues." },
+      { text: "The Witch is defeated; the four children are crowned Kings and Queens of Narnia.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "9. Where the Red Fern Grows (Wilson Rawls)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Billy Coleman works for two hard years to save $50 for two redbone hound pups.", score: 3, time: 8, inBetween: "He walks barefoot through the Ozarks to pick up Dan and Ann, training them tirelessly every evening." },
+      { text: "Old Dan and Little Ann become the champion hunting hounds of the river valley.", score: 4.5, time: 40, inBetween: "They enter the Grand Championship Coohunt competition and win the gold trophy during a blizzard." },
+      { text: "A vicious mountain lion attacks Billy in the dark woods; the dogs defend him.", score: -2.5, time: 70, inBetween: "Old Dan suffers fatal wounds defending Billy, and Little Ann dies of grief on his grave." },
+      { text: "Billy faces deep sorrow, but a sacred red fern blooms between their graves.", score: 1.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "10. Treasure Island (Robert Louis Stevenson)",
+    shape: "Good News / Bad News",
+    events: [
+      { text: "Jim Hawkins discovers a treasure map in the sea chest of an old pirate.", score: 3, time: 8, inBetween: "Squire Trelawney outfits the Hispaniola, hiring Long John Silver and an untrustworthy crew." },
+      { text: "Jim overhears Long John Silver plotting mutiny inside an apple barrel.", score: -3.5, time: 36, inBetween: "Reaching the tropical island, gunfights erupt between the loyal crew and mutineers." },
+      { text: "Jim meets marooned sailor Ben Gunn and captures the pirate ship.", score: 2.5, time: 66, inBetween: "Silver takes Jim hostage, only to find the treasure cache has already been dug up." },
+      { text: "They recover the hidden gold with Ben Gunn and sail safely for England.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "11. The Secret Garden (Frances Hodgson Burnett)",
+    shape: "Cinderella",
+    events: [
+      { text: "Orphaned Mary Lennox arrives at cold Misselthwaite Manor sour and sickly.", score: -3, time: 6, inBetween: "She discovers a buried key and an overgrown garden locked behind high ivy walls." },
+      { text: "Mary begins secretly tending the garden with Dickon, discovering vitality.", score: 2, time: 38, inBetween: "She discovers her bedridden, frightened cousin Colin crying in a hidden wing of the mansion." },
+      { text: "Colin is brought into the sunshine and learns to stand on his own feet.", score: 4, time: 74, inBetween: "The children nurture the blossoming roses and cultivate hope throughout the manor." },
+      { text: "Colin's father returns home to find his son healthy, laughing, and running.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "12. Anne of Green Gables (L.M. Montgomery)",
+    shape: "Cinderella",
+    events: [
+      { text: "Anne Shirley arrives at Green Gables, heartbroken that they wanted a boy.", score: -2, time: 6, inBetween: "Her fierce spirit and poetic imagination charm Marilla and Matthew Cuthbert into keeping her." },
+      { text: "Anne makes friends with Diana Barry and excels academically at school.", score: 3, time: 42, inBetween: "A rivalry with Gilbert Blythe drives Anne to study hard for the Queen's Academy scholarship." },
+      { text: "Matthew passes away, threatening Anne's ability to attend college.", score: -3, time: 76, inBetween: "Gilbert generously gives up his teaching post so Anne can stay close to Green Gables." },
+      { text: "Anne embraces teaching and looks toward the future with deep optimism.", score: 4, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "13. Charlotte's Web (E.B. White)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Wilbur is a lonely young pig who discovers his dangerous fate on the farm.", score: -3, time: 8, inBetween: "Charlotte the barn spider promises to devise a brilliant plan to save his life." },
+      { text: "Charlotte weaves miraculous words into her web, making Wilbur famous.", score: 4, time: 44, inBetween: "The Zuckermans take Wilbur to the county fair, where crowds gather in amazement." },
+      { text: "Charlotte's strength wanes as she lays her egg sac, knowing her time is ending.", score: -2, time: 76, inBetween: "Wilbur lovingly carries Charlotte's egg sac back to the barn to care for her future children." },
+      { text: "Wilbur is awarded the special medal, safe and surrounded by new spider friends.", score: 3, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "14. The Call of the Wild (Jack London)",
+    shape: "From Bad to Worse",
+    events: [
+      { text: "Buck lives as a pampered, aristocratic dog on a sunny California estate.", score: 4, time: 6, inBetween: "The gardener's helper dognaps Buck to pay a gambling debt, shipping him to the Yukon." },
+      { text: "Beaten with a club and forced to pull heavy sleds in the brutal Arctic ice.", score: -3, time: 34, inBetween: "Buck adapts to the law of club and fang, defeating his ruthless lead-dog rival Spitz." },
+      { text: "Rescued by kind John Thornton, forging an unbreakable bond of loyalty.", score: 3, time: 66, inBetween: "Yeehat warriors attack the camp while Buck is hunting, killing Thornton." },
+      { text: "Buck hears the primordial call of the wild and joins the wolf pack as leader.", score: -1, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "15. White Fang (Jack London)",
+    shape: "Cinderella",
+    events: [
+      { text: "White Fang is born half-dog, half-wolf in the harsh, freezing Yukon wild.", score: -2, time: 8, inBetween: "Captured by humans, he is treated with cruelty and turned into a vicious fighting animal." },
+      { text: "Forced into illegal dogfights until nearly killed by a bulldog.", score: -5, time: 42, inBetween: "Weedon Scott steps in, purchases White Fang, and begins patient rehabilitation through kindness." },
+      { text: "White Fang learns to trust human affection for the very first time.", score: 2.5, time: 72, inBetween: "Scott brings White Fang to his sunlit California estate, where he protects the family." },
+      { text: "He saves the family from an escaped convict and rests peacefully with his pups.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "16. The Phantom Tollbooth (Norton Juster)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Milo is thoroughly bored with everything in life, seeing no point in learning.", score: -1.5, time: 6, inBetween: "A mysterious package arrives containing a toy tollbooth, map, and small electric car." },
+      { text: "Drives into the Lands Beyond, meeting Tock the watchdog and visiting Dictionopolis.", score: 2, time: 34, inBetween: "King Azaz and the Mathemagician commission Milo on a quest to rescue Princesses Rhyme and Reason." },
+      { text: "Trapped in the Castle in the Air and pursued by the demons of Ignorance.", score: -3, time: 72, inBetween: "Milo uses words, numbers, and logic to outwit the demons and carry the princesses to safety." },
+      { text: "Returns to his room realizing the world is brimming with wonder and curiosity.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "17. Tuck Everlasting (Natalie Babbitt)",
+    shape: "Boy Meets Girl",
+    events: [
+      { text: "Winnie Foster feels suffocated by the strict rules of her family's cottage.", score: -1.5, time: 8, inBetween: "She wanders into the wood and discovers Jesse Tuck drinking from a hidden spring." },
+      { text: "Meets the Tucks and learns their magical secret: the spring grants immortality.", score: 3.5, time: 38, inBetween: "The sinister man in the yellow suit follows them, plotting to sell the eternal water for profit." },
+      { text: "Mae Tuck defends Winnie, but faces execution on the gallows.", score: -3.5, time: 70, inBetween: "Winnie bravely sneaks into the jail cell to take Mae's place so the family can flee." },
+      { text: "Winnie chooses the natural cycle of life over drinking the immortal water.", score: 2.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "18. My Side of the Mountain (Jean Craighead George)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Sam Gribley leaves crowded NYC with penknife, cord, and flint to live in the Catskills.", score: 0, time: 6, inBetween: "He hollows out an ancient hemlock tree, crafts deer-hide clothing, and trains a falcon named Frightful." },
+      { text: "Thrives through autumn, mastering wilderness survival, cooking, and food storage.", score: 4, time: 42, inBetween: "A merciless mountain blizzard buries his tree, testing his chimney and winter provisions." },
+      { text: "Hunters and reporters begin searching the woods, intruding on his isolation.", score: -2, time: 74, inBetween: "Sam realizes that human connection and family are just as vital as wild independence." },
+      { text: "His family arrives to build a permanent home together on the mountain.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "19. The Black Stallion (Walter Farley)",
+    shape: "Boy Meets Girl",
+    events: [
+      { text: "Alec Ramsay is aboard a steamer ship, watching a magnificent, wild black stallion.", score: 1, time: 6, inBetween: "A midnight shipwreck tosses Alec and the stallion into churning waves onto a deserted island." },
+      { text: "Stranded on the island, Alec patiently wins the Black's trust and rides him.", score: 4, time: 40, inBetween: "A rescue ship brings boy and stallion to New York, where Alec teams with retired trainer Henry Dailey." },
+      { text: "Entering the match race against the nation's fastest champions, the Black is injured at the gate.", score: -3, time: 75, inBetween: "Alec whispers into the stallion's ear, unleashing the horse's thunderous, unmatched speed." },
+      { text: "The Black storms across the finish line to win the championship.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "20. Island of the Blue Dolphins (Scott O'Dell)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Aleut hunters attack Karana's island tribe, killing her father the chief.", score: -4, time: 8, inBetween: "White men arrive on a rescue ship, but Karana leaps into the sea when her little brother is left behind." },
+      { text: "Her brother is killed by wild dogs, leaving Karana entirely alone on the island.", score: -5, time: 28, inBetween: "She defies tribal taboos against women making weapons, building a secure whalebone home." },
+      { text: "Tames Rontu, the leader of the wild dogs, gaining a loyal companion.", score: 2.5, time: 62, inBetween: "Years pass as Karana creates cormorant feather skirts, canoes, and crafts in quiet harmony." },
+      { text: "A rescue ship arrives; Karana boards with her animals, ready for community.", score: 3.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "21. The Swiss Family Robinson (Johann David Wyss)",
+    shape: "Man in Hole",
+    events: [
+      { text: "A fierce storm shipwrecks the Robinson family on an uncharted tropical reef.", score: -3.5, time: 8, inBetween: "The family constructs tubs, salvages livestock and tools from the wreck, and rows ashore." },
+      { text: "They build an ingenious treehouse named Falconhurst and thrive on natural resources.", score: 3.5, time: 45, inBetween: "They tame ostriches, cultivate crops, explore caverns, and defend against predatory beasts." },
+      { text: "A British ship discovers the island, offering passage back to Europe.", score: 2, time: 80, inBetween: "The parents choose to remain in their self-sufficient island paradise, blessing departing sons." },
+      { text: "The family prospers in peace in their new civilized island home.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "22. A Wrinkle in Time (Madeleine L'Engle)",
+    shape: "Boy Meets Girl",
+    events: [
+      { text: "Meg Murry struggles with school, self-doubt, and the mystery of her missing father.", score: -2, time: 8, inBetween: "Mrs. Whatsit, Who, and Which arrive to explain the tesseract and cosmic battle against darkness." },
+      { text: "Meg, Charles Wallace, and Calvin tesser through space to rescue Mr. Murry.", score: 3, time: 38, inBetween: "They land on Camazotz, where Charles Wallace falls under the hypnotic control of the disembodied brain IT." },
+      { text: "Meg frees her father, but Charles Wallace remains trapped under IT's dark control.", score: -4, time: 74, inBetween: "Meg realizes that love is the one weapon she possesses that IT does not understand." },
+      { text: "Meg uses unconditional love to free Charles Wallace and returns safely home.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "23. The Adventures of Tom Sawyer (Mark Twain)",
+    shape: "Good News / Bad News",
+    events: [
+      { text: "Tom Sawyer skips school, tricks boys into whitewashing his aunt's fence.", score: 2, time: 8, inBetween: "Tom and Huck Finn visit the graveyard at midnight and witness Injun Joe commit murder." },
+      { text: "Terrified of Injun Joe, Tom and Huck run away to Jackson's Island to be pirates.", score: -1, time: 38, inBetween: "The boys return to attend their own funeral, delighting Aunt Polly and the entire town." },
+      { text: "Tom courageously testifies in court to save innocent Muff Potter.", score: 3.5, time: 64, inBetween: "During a picnic, Tom and Becky Thatcher become hopelessly lost in the labyrinth of McDougal's Cave." },
+      { text: "Tom discovers a way out of the cave, finds Injun Joe's gold, and becomes a hero.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "24. The Legend of Robin Hood (Traditional Legend)",
+    shape: "Cinderella",
+    events: [
+      { text: "Robin of Locksley is outlawed by the greedy Sheriff of Nottingham.", score: -3, time: 8, inBetween: "Robin gathers the Merry Men in Sherwood Forest, mastering archery and defending the poor." },
+      { text: "Robin robs from corrupt tax collectors and gives wealth back to starving peasants.", score: 3, time: 42, inBetween: "The Sheriff organizes an archery tournament with a golden arrow to trap Robin." },
+      { text: "Robin wins the tournament in disguise, outwitting the Sheriff's soldiers.", score: 4, time: 70, inBetween: "King Richard the Lionheart returns incognito from the Crusades to inspect his kingdom." },
+      { text: "King Richard pardons Robin Hood, restores his lands, and establishes justice.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "25. King Arthur: The Sword in the Stone (British Legend)",
+    shape: "Cinderella",
+    events: [
+      { text: "Young orphan Arthur serves as an overlooked squire called 'Wart'.", score: -2, time: 8, inBetween: "Merlin the wizard educates Arthur through magical transformations into animals to learn wisdom." },
+      { text: "Knights gather in London for a tournament to see who can pull the sword from the stone.", score: 1, time: 40, inBetween: "Sir Kay forgets his sword; Arthur runs to fetch one and effortlessly draws the enchanted blade." },
+      { text: "Nobles challenge Arthur's birthright, refusing to accept an unknown squire as King.", score: -2.5, time: 70, inBetween: "Merlin reveals Arthur's true heritage as the rightful son of King Uther Pendragon." },
+      { text: "Arthur is crowned High King of Britain, pledging to rule with chivalry and justice.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "26. Daedalus and Icarus (Greek Myth)",
+    shape: "From Bad to Worse",
+    events: [
+      { text: "Brilliant architect Daedalus constructs the intricate Labyrinth for King Minos.", score: 2, time: 6, inBetween: "King Minos imprisons Daedalus and his young son Icarus in a high seaside tower." },
+      { text: "Daedalus crafts wings of feathers and wax, warning Icarus not to fly too high.", score: 1.5, time: 40, inBetween: "They launch into the sky over the Aegean Sea, experiencing the exhilarating freedom of flight." },
+      { text: "Icarus grows arrogant and flies too close to the sun, melting the wax on his wings.", score: -4, time: 75, inBetween: "Icarus plunges into the sea, while Daedalus weeps in grief on the distant shore." },
+      { text: "Daedalus reaches Sicily in sorrow, naming the sea after his fallen son.", score: -4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "27. Theseus and the Minotaur (Greek Myth)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Athens is forced to send fourteen youths as tribute to the Minotaur in Crete.", score: -3.5, time: 8, inBetween: "Prince Theseus volunteers to sail with the tribute to slay the beast, promising white sails on return." },
+      { text: "Princess Ariadne gives Theseus a golden ball of thread and a sword to navigate the maze.", score: 2, time: 42, inBetween: "Theseus ties the thread to the entrance, walking deep into the echoing bones of the Labyrinth." },
+      { text: "Defeats the terrifying Minotaur and traces the golden thread out of the maze.", score: 4, time: 70, inBetween: "In his joyful haste returning to Athens, Theseus forgets to change the black sails to white." },
+      { text: "Theseus arrives home in victory, crowned King of Athens to begin a golden age.", score: 3.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "28. Perseus and Medusa (Greek Myth)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Wicked King Polydectes tricks young Perseus into promising the head of Medusa.", score: -3, time: 8, inBetween: "Hermes and Athena bestow a reflective bronze shield, winged sandals, and a curved sword." },
+      { text: "Perseus seeks the Gray Sisters and locates the petrified lair of the Gorgons.", score: 1, time: 42, inBetween: "Looking only into the reflection of his shield, Perseus creeps past the stone statues of fallen warriors." },
+      { text: "Beheads Medusa without gazing into her petrifying eyes and escapes her sisters.", score: 4, time: 72, inBetween: "Flying home, he rescues Princess Andromeda from a sea monster and turns Polydectes to stone." },
+      { text: "Perseus returns in triumph, fulfilling prophecy and ruling Mycenae in peace.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "29. Hercules and the Twelve Labors (Greek Myth)",
+    shape: "Good News / Bad News",
+    events: [
+      { text: "Hercules must perform twelve impossible labors for King Eurystheus to atone.", score: -3, time: 8, inBetween: "He slays the Nemean Lion, destroys the multi-headed Hydra, and captures the golden hind." },
+      { text: "Successfully cleans the Augean Stables in a single day by diverting two rivers.", score: 2.5, time: 40, inBetween: "Sent to the ends of the earth to fetch the Golden Apples of the Hesperides from Atlas." },
+      { text: "Descends into the terrifying Underworld to wrestle and capture three-headed Cerberus.", score: -2.5, time: 72, inBetween: "Hercules brings the beast before Eurystheus, completing all twelve tasks through endurance." },
+      { text: "Freed from his trials, Hercules achieves immortal glory among the gods on Olympus.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "30. The Tortoise and the Hare (Aesop's Fable)",
+    shape: "Good News / Bad News",
+    events: [
+      { text: "The boastful Hare constantly mocks the slow-moving Tortoise.", score: -1, time: 8, inBetween: "Tortoise challenges Hare to a footrace; the forest animals gather along the course." },
+      { text: "Hare sprints far ahead and arrogantly decides to take a nap under a shady tree.", score: 2, time: 40, inBetween: "Tortoise continues plodding forward, step by steady step, never pausing or looking back." },
+      { text: "Hare awakens in a panic to see Tortoise inches from the finish line.", score: -3, time: 78, inBetween: "Hare sprints with all his might, but his last-second burst is too late." },
+      { text: "Tortoise crosses the finish line victorious: slow and steady wins the race.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "31. The Boy Who Cried Wolf (Aesop's Fable)",
+    shape: "From Bad to Worse",
+    events: [
+      { text: "A lonely shepherd boy is bored watching his flock of sheep on the hillside.", score: 0, time: 8, inBetween: "To entertain himself, he screams 'Wolf! Wolf!' watching the panicked villagers run up to help." },
+      { text: "He laughs at the villagers' anger, repeating the prank days later.", score: 1.5, time: 40, inBetween: "The villagers return to work, furiously vowing never to believe his lies again." },
+      { text: "A real, ravenous wolf creeps out from the forest shadows among the sheep.", score: -3, time: 72, inBetween: "The boy screams in genuine terror, but the villagers ignore his cries, assuming another trick." },
+      { text: "The wolf scatters the flock, leaving the boy weeping in regret: liars are never believed.", score: -5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "32. Number the Stars (Lois Lowry)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Annemarie Johansen lives an ordinary school life in occupied Copenhagen during WWII.", score: 0, time: 8, inBetween: "Nazi soldiers announce plans to relocate all Jewish citizens in Denmark." },
+      { text: "The Johansen family shelters Annemarie's best friend Ellen Rosen, pretending she is their daughter.", score: -2.5, time: 38, inBetween: "Soldiers interrogate the girls in their bedroom, but Annemarie tears off Ellen's Star of David necklace." },
+      { text: "Uncle Henrik plans a daring midnight smuggling operation across the sea to neutral Sweden.", score: 1.5, time: 65, inBetween: "Annemarie must make a dangerous solo run through dark woods to deliver an essential packet to the boat." },
+      { text: "The Danish resistance rescues nearly the entire Jewish population to safety.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "33. Johnny Tremain (Esther Forbes)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Johnny Tremain is a gifted, proud young silversmith apprentice in colonial Boston.", score: 3, time: 8, inBetween: "A molten silver accident on the Sabbath permanently cripples his right hand, ending his trade." },
+      { text: "Despairing and destitute, Johnny is befriended by Rab and joins the Sons of Liberty.", score: 0, time: 38, inBetween: "He participates in the Boston Tea Party, dumping crate after crate of tea into Boston Harbor." },
+      { text: "The Battles of Lexington and Concord erupt; Johnny's dear friend Rab is mortally wounded.", score: -4, time: 76, inBetween: "Doctor Warren operates on Johnny's hand, while Johnny embraces the birth of American liberty." },
+      { text: "Johnny stands tall with courage, prepared to fight for a free and independent nation.", score: 4, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "34. Around the World in Eighty Days (Jules Verne)",
+    shape: "Good News / Bad News",
+    events: [
+      { text: "Phileas Fogg wagers 20,000 pounds that he can circumnavigate the globe in 80 days.", score: 2, time: 8, inBetween: "Fogg and Passepartout race through Suez, but Detective Fix suspects Fogg of being a bank robber." },
+      { text: "Rescue Princess Aouda in India and cross the Pacific on a steamship.", score: 4, time: 45, inBetween: "Blizzards, Sioux attacks, and delayed ships test their strict timetable across America." },
+      { text: "Arriving in Liverpool, Detective Fix mistakenly arrests Fogg, causing him to miss his train.", score: -5, time: 80, inBetween: "Fogg sits in despair, until Passepartout discovers they gained a day by traveling east." },
+      { text: "Fogg enters the Reform Club with seconds to spare, winning the wager and Aouda's love.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "35. Twenty Thousand Leagues Under the Sea (Jules Verne)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Professor Aronnax joins an expedition hunting a terrifying sea monster sinking ships.", score: 1, time: 8, inBetween: "The expedition ship is rammed; Aronnax and Ned Land are taken aboard Captain Nemo's submarine, the Nautilus." },
+      { text: "Marvel at coral forests, sunken Atlantis, and undersea wonders of the deep.", score: 3.5, time: 42, inBetween: "Nemo's fierce hatred of oppressive empires surfaces as he mercilessly rams a warship." },
+      { text: "Giant squids attack the submarine, and the Nautilus is pulled into the deadly Maelstrom.", score: -4, time: 78, inBetween: "Aronnax and his friends risk everything to launch a small rowboat into the churning whirlpool." },
+      { text: "They wash ashore safely in Norway, sharing the secrets of the mysterious ocean depths.", score: 3.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "36. The Prince and the Pauper (Mark Twain)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Tom Canty (a street beggar) and Prince Edward Tudor are born on the same day.", score: -1, time: 6, inBetween: "They meet at the palace gate and playfully swap clothes, discovering they are identical twins in looks." },
+      { text: "Prince Edward is mistaken for a beggar and thrown out into the dangerous London slums.", score: -4, time: 30, inBetween: "Edward witnesses the suffering and cruel laws imposed on commoners, vowing to rule with mercy." },
+      { text: "King Henry VIII dies; Tom Canty is about to be crowned King of England in Westminster Abbey.", score: 2, time: 70, inBetween: "Edward arrives in rags at the coronation, producing the missing Great Seal to prove his identity." },
+      { text: "Edward VI takes his rightful throne, remembered as a wise and merciful monarch.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "37. Rip Van Winkle (Washington Irving)",
+    shape: "Good News / Bad News",
+    events: [
+      { text: "Rip Van Winkle is an easygoing man who wanders the Catskill Mountains to escape scolding.", score: 1, time: 8, inBetween: "He meets strange men playing ninepins, drinks their flagon, and falls into a deep sleep." },
+      { text: "Awakens to find his gun rusted, his dog gone, and his beard grown a foot long.", score: -2, time: 44, inBetween: "He hobbles into his village, recognizing no one and seeing the portrait of King George replaced by George Washington." },
+      { text: "Discovers he has slept for twenty years through the entire American Revolutionary War.", score: 0, time: 75, inBetween: "His grown daughter recognizes him, inviting him to live peacefully in her warm home." },
+      { text: "Rip lives out his days as a beloved patriarch, sharing tales on the village bench.", score: 4, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "38. The Legend of Sleepy Hollow (Washington Irving)",
+    shape: "From Bad to Worse",
+    events: [
+      { text: "Superstitious schoolmaster Ichabod Crane arrives in the enchanted glen of Sleepy Hollow.", score: 2, time: 8, inBetween: "Ichabod courts wealthy Katrina Van Tassel, drawing the jealousy of burly rival Brom Bones." },
+      { text: "Attends a harvest feast, listening to chilling tales of the ghostly Headless Horseman.", score: 2.5, time: 42, inBetween: "Katrina rejects Ichabod; he rides his broken-down plow horse Gunpowder into the dark woods at midnight." },
+      { text: "Pursued by a towering cloaked figure carrying a glowing head on his saddle.", score: -4, time: 78, inBetween: "At the church bridge, the horseman hurls the head, knocking Ichabod sprawling into the mud." },
+      { text: "Ichabod vanishes forever, leaving only a shattered pumpkin on the road.", score: -4.5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "39. Rikki-Tikki-Tavi (Rudyard Kipling)",
+    shape: "Man in Hole",
+    events: [
+      { text: "A summer flood washes young mongoose Rikki-Tikki-Tavi into the garden of a British family.", score: 1, time: 8, inBetween: "The family warms and feeds him, adopting him as their beloved house mongoose." },
+      { text: "Discovers two deadly black cobras, Nag and Nagaina, planning to kill the family.", score: -3, time: 38, inBetween: "Rikki ambushes Nag in the dark bathroom, fighting tooth and claw until the man shoots the cobra." },
+      { text: "Nagaina threatens young Teddy on the veranda with her venomous fangs.", score: -4.5, time: 72, inBetween: "Rikki distracts Nagaina with her last egg, chasing her into the deep underground cobra burrow." },
+      { text: "Rikki emerges victorious from the burrow; the garden and family are forever safe.", score: 5, time: 98, inBetween: "" }
+    ]
+  },
+  {
+    title: "40. The Most Dangerous Game (Richard Connell)",
+    shape: "Man in Hole",
+    events: [
+      { text: "Sanger Rainsford, a celebrated big-game hunter, accidentally falls overboard into the Caribbean.", score: -3, time: 8, inBetween: "He swims to mysterious Ship-Trap Island, finding a lavish Gothic chateau owned by General Zaroff." },
+      { text: "Discovers that Zaroff hunts shipwrecked human beings for sport in the island jungle.", score: -4.5, time: 35, inBetween: "Refusing to hunt humans, Rainsford is forced into the jungle as Zaroff's prey with a 3-hour head start." },
+      { text: "Constructs Malay man-catchers and Burmese tiger pits, eliminating Zaroff's hounds.", score: 1, time: 65, inBetween: "Cornered at the rocky cliff with hounds baying, Rainsford leaps far into the churning ocean." },
+      { text: "Rainsford sneaks into Zaroff's bedroom, defeats the General, and wins the deadly game.", score: 4.5, time: 98, inBetween: "" }
+    ]
+  }
+];
+
+let unseenExamples = [];
+function resetExampleShuffle() {
+  unseenExamples = Array.from({ length: exampleLibrary.length }, (_, i) => i);
+  for (let i = unseenExamples.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [unseenExamples[i], unseenExamples[j]] = [unseenExamples[j], unseenExamples[i]];
+  }
+}
+
+function populateExampleSelect() {
+  const select = document.getElementById("exampleSelect");
+  if (!select) return;
+  select.innerHTML = `<option value="">Choose a story...</option>` +
+    exampleLibrary.map((ex, i) => `<option value="${i}">${escapeHtml(ex.title)}</option>`).join("");
+}
+
+function loadExampleByIndex(index) {
+  const ex = exampleLibrary[index];
+  if (!ex) return;
+  // Clean title without numbering for storyTitle input
+  storyTitle.value = ex.title.replace(/^\d+\.\s*/, "");
+  events = ex.events.map(item => ({
+    text: item.text,
+    score: Number(item.score),
+    time: Number(item.time),
+    inBetween: item.inBetween || ""
+  }));
+  activeShapes = new Set([ex.shape]);
+
+  const select = document.getElementById("exampleSelect");
+  if (select) select.value = String(index);
+
+  render();
+  savePlanToBrowser();
+}
+
+function loadRandomExample() {
+  if (!unseenExamples.length) resetExampleShuffle();
+  const index = unseenExamples.pop();
+  loadExampleByIndex(index);
+}
+
+function loadSelectedExample(val) {
+  if (val === "") return;
+  loadExampleByIndex(Number(val));
+}
+
+// --- Persistence (Local Storage & JSON File) ---
+function getPlanState() {
+  return {
+    storyTitle: storyTitle.value,
+    events: events.map(e => ({
+      text: e.text,
+      score: Number(e.score),
+      time: Number(e.time),
+      inBetween: String(e.inBetween || "")
+    })),
+    activeShapes: Array.from(activeShapes),
+    mode
+  };
+}
+
+function savePlanToBrowser() {
+  if (isInitializing) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getPlanState()));
+    const status = document.getElementById("saveStatus");
+    if (status) status.textContent = `Auto-saved ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+  } catch (err) {
+    const status = document.getElementById("saveStatus");
+    if (status) status.textContent = "Local storage disabled";
+  }
+}
+
+function restorePlanFromBrowser() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    if (!state || !Array.isArray(state.events)) return false;
+
+    storyTitle.value = state.storyTitle || "";
+    events = state.events.map((e, i) => ({
+      text: String(e.text || ""),
+      score: Math.max(-5, Math.min(5, Number(e.score) || 0)),
+      time: Math.max(0, Math.min(100, Number(e.time ?? (8 + i * 14)))),
+      inBetween: String(e.inBetween || "")
+    }));
+
+    if (Array.isArray(state.activeShapes)) activeShapes = new Set(state.activeShapes);
+    if (state.mode === "own" || state.mode === "review") {
+      mode = state.mode;
+      document.getElementById("reviewMode").classList.toggle("active", mode === "review");
+      document.getElementById("ownMode").classList.toggle("active", mode === "own");
+    }
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 function savePlanFile() {
   const blob = new Blob([JSON.stringify(getPlanState(), null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -10,6 +2197,7 @@ function savePlanFile() {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
 function loadPlanFile(event) {
   const file = event.target.files?.[0];
   if (!file) return;
@@ -31,7 +2219,6 @@ function loadPlanFile(event) {
         document.getElementById("reviewMode").classList.toggle("active", mode === "review");
         document.getElementById("ownMode").classList.toggle("active", mode === "own");
       }
-      if (state.curveStyle) setCurveStyle(state.curveStyle);
       render();
       savePlanToBrowser();
     } catch (err) {
@@ -41,18 +2228,80 @@ function loadPlanFile(event) {
   };
   reader.readAsText(file);
 }
+
 function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, ch => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
 }
+
 function printPage() {
   window.print();
 }
+
 eventText.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") addEvent();
 });
+
 storyTitle.addEventListener("input", savePlanToBrowser);
+
+// --- Copy Storyboard for Submission ---
+function copyStoryboard() {
+  if (events.length === 0) {
+    alert("Add some events first before copying your storyboard!");
+    return;
+  }
+
+  const title = storyTitle.value.trim() || "(Untitled Story)";
+  const ordered = chronologicalEvents();
+  const guess = nearestShape();
+  const divider = "─".repeat(50);
+
+  let text = "";
+  text += "STORY SHAPE STORYBOARD — CHECKPOINT SUBMISSION\n";
+  text += divider + "\n";
+  text += `Title: ${title}\n`;
+  text += `Events: ${events.length}\n`;
+  if (guess) {
+    text += `Closest Archetype: ${guess.name} — ${shapes[guess.name].desc}\n`;
+  }
+  text += divider + "\n\n";
+
+  ordered.forEach((item, idx) => {
+    text += `EVENT #${item.originalIndex + 1}  |  Timing: ${item.time}%  |  Fortune: ${getFortuneDescriptor(item.score)}\n`;
+    text += `  ${item.text}\n`;
+
+    if (idx < ordered.length - 1) {
+      const nextItem = ordered[idx + 1];
+      const bridge = item.inBetween && item.inBetween.trim();
+      text += `\n  ↳ IN-BETWEEN (Event #${item.originalIndex + 1} → #${nextItem.originalIndex + 1}):\n`;
+      text += `    ${bridge || "(not yet written)"}\n`;
+    }
+    text += "\n";
+  });
+
+  text += divider + "\n";
+  text += "Generated with Vonnegut Story Shape Plotter\n";
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("btnCopyStoryboard");
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied to clipboard!';
+    btn.style.background = '#059669';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#059669';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  }).catch(() => {
+    // Fallback: open in a prompt so the student can manually copy
+    prompt("Copy the text below and paste it in your submission:", text);
+  });
+}
+
 // --- Master Render ---
 function render() {
   renderGrid();
@@ -64,6 +2313,7 @@ function render() {
   updateInsight();
   if (!isInitializing) savePlanToBrowser();
 }
+
 // --- App Bootstrap ---
 resetExampleShuffle();
 populateExampleSelect();
@@ -71,6 +2321,7 @@ const hadSaved = restorePlanFromBrowser();
 if (!hadSaved && events.length === 0) {
   loadExampleByIndex(0);
 }
+updateModeUI();
 isInitializing = false;
 render();
 </script>
