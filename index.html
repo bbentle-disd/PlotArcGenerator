@@ -6,1561 +6,1029 @@
 <title>Vonnegut Story Shape Plotter</title>
 <style>
   :root {
-    --ink: #20232a;
-    --muted: #667085;
-    --paper: #fbfaf7;
+    --ink: #1e2432;
+    --muted: #64748b;
+    --paper: #f8fafc;
     --panel: #ffffff;
-    --line: #d9dde5;
+    --line: #e2e8f0;
     --accent: #4f46e5;
+    --accent-hover: #4338ca;
     --accent-soft: #eef2ff;
-    --good: #e7f6ea;
-    --bad: #fff0f0;
+    --accent-border: #c7d2fe;
+    --good: #10b981;
+    --good-soft: #ecfdf5;
+    --bad: #ef4444;
+    --bad-soft: #fef2f2;
+    --bridge: #0284c7;
+    --bridge-soft: #f0f9ff;
+    --bridge-border: #bae6fd;
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08);
+    --radius: 12px;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     color: var(--ink);
     background: var(--paper);
+    line-height: 1.5;
   }
   header {
-    padding: 22px 24px 14px;
+    padding: 18px 28px;
     border-bottom: 1px solid var(--line);
     background: var(--panel);
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
   }
-  h1 { margin: 0 0 5px; font-size: 26px; }
-  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  .header-titles h1 {
+    margin: 0 0 3px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-titles p { margin: 0; color: var(--muted); font-size: 13px; }
+  .header-badges {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .badge-bridge {
+    background: var(--bridge-soft);
+    color: var(--bridge);
+  }
+
   main {
-    max-width: 1180px;
+    max-width: 1360px;
     margin: 0 auto;
-    padding: 18px;
+    padding: 20px;
     display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 18px;
+    grid-template-columns: 410px 1fr;
+    gap: 22px;
+    align-items: start;
   }
   .panel {
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.03);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
   }
-  .panel h2 { margin: 0 0 12px; font-size: 18px; }
+  .panel h2 {
+    margin: 0 0 14px;
+    font-size: 17px;
+    font-weight: 750;
+    color: var(--ink);
+  }
   .subhead {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
     letter-spacing: .08em;
     text-transform: uppercase;
     color: var(--muted);
     margin: 18px 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  label { font-weight: 650; font-size: 13px; display: block; margin-bottom: 5px; }
+  label { font-weight: 600; font-size: 13px; display: block; margin-bottom: 5px; color: #334155; }
   input[type="text"], textarea, select {
     width: 100%;
     border: 1px solid var(--line);
-    border-radius: 9px;
-    padding: 10px;
+    border-radius: 8px;
+    padding: 9px 12px;
     font: inherit;
+    font-size: 13px;
     background: white;
+    transition: border-color .15s, box-shadow .15s;
   }
-  textarea { min-height: 76px; resize: vertical; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .fortune-wrap { margin-top: 8px; }
-  input[type="range"] { width: 100%; }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fortune-wrap {
+    margin-top: 10px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+    margin: 6px 0 2px;
+  }
   .range-labels {
     display: flex;
     justify-content: space-between;
     font-size: 11px;
     color: var(--muted);
-    margin-top: 2px;
+    font-weight: 600;
   }
   .fortune-value {
     display: inline-block;
-    min-width: 74px;
+    min-width: 90px;
     text-align: center;
-    padding: 5px 8px;
+    padding: 4px 8px;
     border-radius: 99px;
     background: var(--accent-soft);
     color: var(--accent);
     font-weight: 750;
     font-size: 12px;
   }
-  .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
   button {
-    border: 0;
-    border-radius: 9px;
-    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
     font: inherit;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 650;
     cursor: pointer;
-    background: #eceef3;
+    background: #f8fafc;
     color: var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color .15s, border-color .15s, transform .05s;
   }
-  button.primary { background: var(--accent); color: #fff; }
-  button:hover { filter: brightness(.97); }
+  button:hover { background: #f1f5f9; border-color: #cbd5e1; }
+  button:active { transform: scale(0.98); }
+  button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button.small { padding: 4px 8px; font-size: 11px; }
+
   .tip {
     margin-top: 12px;
-    padding: 10px;
-    border-radius: 10px;
-    background: #f5f7fb;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f1f5f9;
     font-size: 12px;
     line-height: 1.45;
+    color: #475569;
   }
+  .tip strong { color: var(--ink); }
+
+  /* Sequence & Event List */
   .event-list {
     margin-top: 14px;
-    max-height: 260px;
-    overflow: auto;
-    border-top: 1px solid var(--line);
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px;
+    background: #fafbfc;
+    scroll-behavior: smooth;
+  }
+  .event-list:empty::before {
+    content: "No events plotted yet. Add an event above or load an example story!";
+    display: block;
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
   }
   .event {
     display: grid;
-    grid-template-columns: 34px 1fr auto;
-    gap: 8px;
-    align-items: center;
-    padding: 9px 0;
-    border-bottom: 1px solid #eef0f4;
+    grid-template-columns: 28px 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 8px;
+    background: white;
+    border: 1px solid #eef2f6;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    transition: background .12s, border-color .12s, box-shadow .12s;
+  }
+  .event.active-event {
+    background: var(--accent-soft);
+    border-color: var(--accent-border);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
   }
   .num {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: #f0f1f4;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #0f172a;
+    color: white;
     display: grid; place-items: center;
-    font-size: 12px; font-weight: 800;
+    font-size: 11px; font-weight: 800;
+    margin-top: 2px;
   }
-  .event-text { font-size: 13px; line-height: 1.28; }
-  .event-score { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .delete {
-    padding: 5px 7px;
+  .event-text {
+    font-size: 12.5px;
+    line-height: 1.35;
+    font-weight: 550;
+    color: var(--ink);
+  }
+  .event-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .event-control-item {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .event-control-item div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+  .delete-btn {
+    padding: 4px 6px;
     background: transparent;
-    color: #777;
+    border: none;
+    color: #94a3b8;
     font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 4px;
   }
-  .canvas-panel { padding: 12px 14px 16px; }
+  .delete-btn:hover { background: #fee2e2; color: #ef4444; }
+
+  /* In-Between Transition Card */
+  .inbetween-block {
+    position: relative;
+    margin: 6px 0 6px 14px;
+    padding: 8px 10px 8px 14px;
+    border-left: 2px dashed #93c5fd;
+    background: #f0f9ff;
+    border-radius: 0 8px 8px 0;
+    transition: all .15s ease;
+  }
+  .inbetween-block.has-content {
+    background: #f8fafc;
+    border-left-color: #6366f1;
+  }
+  .inbetween-block.active-inbetween {
+    background: #eff6ff;
+    border-left: 3px solid var(--bridge);
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+  }
+  .inbetween-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 750;
+    color: #0369a1;
+  }
+  .inbetween-header-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .inbetween-icon-badge {
+    background: #e0f2fe;
+    color: #0284c7;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+  }
+  .inbetween-textarea {
+    width: 100%;
+    min-height: 48px;
+    font-size: 12px;
+    line-height: 1.4;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: white;
+    resize: vertical;
+    transition: border-color .15s;
+  }
+  .inbetween-textarea:focus {
+    outline: none;
+    border-color: var(--bridge);
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+  }
+  .inbetween-textarea::placeholder {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 11px;
+  }
+
+  .canvas-panel {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .canvas-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .curve-toggle-group {
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 2px;
+    border-radius: 8px;
+    gap: 2px;
+  }
+  .curve-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .curve-toggle-btn.active {
+    background: white;
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+
   .chart-wrap {
     width: 100%;
-    overflow-x: auto;
+    position: relative;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    overflow: hidden;
   }
   svg {
     width: 100%;
-    min-width: 650px;
-    height: 520px;
+    height: auto;
+    aspect-ratio: 900 / 520;
     display: block;
-    background: white;
-    border-radius: 12px;
+    user-select: none;
+    touch-action: none;
   }
-  .axis { stroke: #7c8494; stroke-width: 1.4; }
-  .grid { stroke: #eceef2; stroke-width: 1; }
-  .template { fill: none; stroke-width: 3; stroke-dasharray: 8 7; opacity: .28; pointer-events: none; }
-  .user-curve { fill: none; stroke: #4f46e5; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; opacity: 1; }
-  .point { cursor: crosshair; touch-action: none; }
-  .point:hover circle { r: 8; }
-  .point-label { font-size: 11px; font-weight: 700; pointer-events: none; }
-  .ytitle, .xtitle { font-size: 12px; font-weight: 700; fill: #525866; }
-  .ytick, .xtick { font-size: 11px; fill: #6d7481; }
+
+  /* SVG Styles */
+  .axis-main { stroke: #334155; stroke-width: 2; stroke-linecap: round; }
+  .axis-zero { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .grid-line { stroke: #f1f5f9; stroke-width: 1; }
+  .axis-label { font-size: 11px; font-weight: 750; fill: #475569; letter-spacing: 0.04em; }
+  .axis-subtitle { font-size: 9.5px; fill: #94a3b8; font-weight: 500; }
+  .tick-text { font-size: 10px; fill: #64748b; font-family: monospace; }
+  
+  .template-path {
+    fill: none;
+    stroke-width: 3;
+    stroke-dasharray: 6 5;
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity .2s, stroke-width .2s;
+  }
+  .template-path.highlighted {
+    opacity: 0.95;
+    stroke-width: 4.5;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  }
+
+  .user-area-good { fill: url(#goodGrad); opacity: 0.35; pointer-events: none; }
+  .user-area-bad { fill: url(#badGrad); opacity: 0.35; pointer-events: none; }
+  
+  .user-curve-shadow {
+    fill: none;
+    stroke: rgba(79, 70, 229, 0.18);
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+  .user-curve-line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+  }
+
+  .point-group { cursor: grab; }
+  .point-group:active { cursor: grabbing; }
+  .point-hit { fill: transparent; }
+  .point-halo {
+    fill: var(--accent);
+    opacity: 0.15;
+    transition: r .15s ease, opacity .15s;
+  }
+  .point-circle {
+    fill: #0f172a;
+    stroke: #ffffff;
+    stroke-width: 2.5;
+    transition: r .15s ease, fill .15s;
+  }
+  .point-group:hover .point-circle, .point-group.active-drag .point-circle {
+    r: 9;
+    fill: var(--accent);
+  }
+  .point-group:hover .point-halo, .point-group.active-drag .point-halo {
+    r: 18;
+    opacity: 0.3;
+  }
+  .point-tag {
+    font-size: 11px;
+    font-weight: 800;
+    fill: #ffffff;
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* In-Between Interactive Bridge Badges on the Curve */
+  .bridge-node {
+    cursor: pointer;
+    transition: transform .15s ease;
+  }
+  .bridge-node:hover {
+    transform: scale(1.2);
+  }
+  .bridge-circle {
+    fill: #ffffff;
+    stroke: #0284c7;
+    stroke-width: 2;
+    transition: fill .15s, stroke .15s;
+  }
+  .bridge-node.has-note .bridge-circle {
+    fill: #0284c7;
+    stroke: #ffffff;
+    stroke-width: 2;
+    filter: drop-shadow(0 2px 4px rgba(2, 132, 199, 0.3));
+  }
+  .bridge-icon {
+    font-size: 9px;
+    font-weight: 800;
+    fill: #0284c7;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+  .bridge-node.has-note .bridge-icon {
+    fill: #ffffff;
+  }
+
+  /* Tooltip overlay in SVG */
+  .tooltip-box {
+    pointer-events: none;
+    transition: opacity .15s;
+  }
+  .tooltip-bg {
+    fill: #0f172a;
+    rx: 8;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+  }
+  .tooltip-title { fill: #f8fafc; font-size: 11px; font-weight: 800; }
+  .tooltip-desc { fill: #cbd5e1; font-size: 10.5px; }
+  .tooltip-sub { fill: #93c5fd; font-size: 10px; font-weight: 700; }
+
+  /* Legend */
   .legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin: 10px 2px 0;
+    gap: 7px;
+    margin-top: 4px;
   }
   .legend-item {
     border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 5px 8px;
+    padding: 4px 10px 4px 8px;
     font-size: 11px;
+    font-weight: 650;
     background: white;
     cursor: pointer;
     user-select: none;
-  }
-  .legend-item.active { background: #f3f3ff; border-color: #bfc3ff; }
-  .insight {
-    margin-top: 12px;
-    padding: 12px;
-    border-left: 4px solid var(--accent);
-    background: #f7f7ff;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.5;
-  }
-  .mode {
-    display: flex;
+    display: inline-flex;
+    align-items: center;
     gap: 6px;
-    margin-bottom: 12px;
+    transition: all .15s;
   }
-  .mode button { flex: 1; }
-  .mode button.active { background: var(--accent); color: #fff; }
+  .legend-item:hover { border-color: #cbd5e1; background: #f8fafc; }
+  .legend-item.active { background: #f5f3ff; border-color: #c7d2fe; color: #4338ca; }
+  .legend-color-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .insight {
+    padding: 12px 14px;
+    border-left: 4px solid var(--accent);
+    background: #f8fafc;
+    border-radius: 6px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #334155;
+  }
+  .mode { display: flex; gap: 6px; margin-bottom: 12px; }
+  .mode button { flex: 1; padding: 7px 10px; }
+  .mode button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Narrative Log Breakdown for Classroom Presentation & Printing */
+  .story-narrative-log {
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+  }
+  .narrative-log-item {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: #f8fafc;
+    border-left: 3px solid #6366f1;
+    border-radius: 0 6px 6px 0;
+  }
+  .narrative-log-bridge {
+    padding: 6px 12px 6px 24px;
+    margin: -4px 0 8px 12px;
+    border-left: 2px dashed #0284c7;
+    font-size: 12px;
+    color: #0369a1;
+    background: #f0f9ff;
+    border-radius: 0 6px 6px 0;
+  }
+
   .footer-note {
-    max-width: 1180px;
+    max-width: 1360px;
     margin: 0 auto;
-    padding: 0 18px 24px;
+    padding: 0 20px 24px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 11.5px;
     line-height: 1.5;
   }
-  @media (max-width: 880px) {
+
+  @media (max-width: 960px) {
     main { grid-template-columns: 1fr; }
     header { position: static; }
   }
   @media print {
-    header, .controls, .footer-note, .legend { display: none !important; }
+    header, .controls, .footer-note, .canvas-toolbar, .legend, .buttons, .tip { display: none !important; }
     main { display: block; padding: 0; }
-    .panel { border: 0; box-shadow: none; }
-    svg { min-width: 0; }
+    .panel { border: 0; box-shadow: none; padding: 0; }
+    .chart-wrap { border: 1px solid #ccc; page-break-after: avoid; }
+    .story-narrative-log { display: block !important; margin-top: 24px; }
   }
-
-  .workspace-bar { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:10px 0 14px; }
-  .workspace-tabs { display:flex; flex-wrap:wrap; gap:5px; flex:1; min-width:0; }
-  .workspace-tab { background:#f3f4f7; border:1px solid #dfe2e8; padding:7px 10px; border-radius:9px; cursor:pointer; font-size:12px; font-weight:750; }
-  .workspace-tab.active { background:var(--accent-soft); border-color:#bfc3ff; color:var(--accent); }
-  .status-select { width:100%; }
-  .teacher-panel { display:none; margin-top:16px; }
-  .student-card { border:1px solid var(--line); border-radius:10px; padding:12px; margin:9px 0; background:#fff; }
-  .student-card h3 { margin:0 0 4px; font-size:14px; }
-  .student-meta { font-size:11px; color:var(--muted); line-height:1.5; }
-  .badge { display:inline-block; border-radius:999px; padding:3px 7px; font-size:10px; font-weight:800; background:#f0f1f4; }
-  .badge.ready { background:var(--good); }
-  .teacher-work { margin-top:8px; padding-top:8px; border-top:1px solid #eef0f4; font-size:12px; line-height:1.5; }
-  .teacher-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
-  .danger { background:var(--bad); }
-  .teacher-note { width:100%; min-height:64px; margin-top:7px; }
-  @media (max-width: 700px) { .workspace-bar button { flex:1 1 auto; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Vonnegut Story Shape Plotter</h1>
-  <p>Predict the plot → plot the evidence → compare the shape → explain your thinking.</p>
-  <div style="margin-top:9px;"><button onclick="openTeacherGate()">Teacher View</button></div>
+  <div class="header-titles">
+    <h1>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);">
+        <path d="M3 17l6-6 4 4 8-8"></path>
+      </svg>
+      Vonnegut Story Shape Plotter
+    </h1>
+    <p>Plot narrative fortune over story time • Connect major plot beats with written In-Betweens</p>
+  </div>
+  <div class="header-badges">
+    <span class="badge" id="eventCountBadge">0 events</span>
+    <span class="badge badge-bridge" id="inBetweenCountBadge">0 in-betweens</span>
+    <span id="saveStatus" style="font-size:11px;color:var(--muted);font-weight:500;">Auto-save ready</span>
+  </div>
 </header>
 
 <main>
+  <!-- Left Column: Controls & Event Management -->
   <section class="panel controls">
-    <h2>1. Build the class plot</h2>
+    <h2>1. Build Your Story Plot</h2>
 
     <div class="mode">
       <button id="reviewMode" class="active" onclick="setMode('review')">Review a Story</button>
       <button id="ownMode" onclick="setMode('own')">Plan My Story</button>
     </div>
 
-    <div class="subhead">My story tabs</div>
-    <div class="workspace-bar">
-      <div id="workspaceTabs" class="workspace-tabs"></div>
-      <button onclick="newWorkspace()">+ New story</button>
-      <button onclick="duplicateWorkspace()">Duplicate</button>
-      <button onclick="renameWorkspace()">Rename</button>
-      <button class="danger" onclick="deleteWorkspace()">Delete</button>
-    </div>
+    <label for="storyTitle">Story or Book Title</label>
+    <input id="storyTitle" type="text" placeholder="Example: Holes, The Odyssey, Hamlet...">
 
-    <div class="row">
-      <div>
-        <label for="studentName">Your name / initials</label>
-        <input id="studentName" type="text" placeholder="Optional">
-      </div>
-      <div>
-        <label for="workspaceStatus">Planning status</label>
-        <select id="workspaceStatus" class="status-select">
-          <option>Planning</option>
-          <option>Ready for teacher review</option>
-          <option>Needs conference</option>
-          <option>Finished</option>
-        </select>
-      </div>
-    </div>
-
-    <label for="storyTitle">Story title</label>
-    <input id="storyTitle" type="text" placeholder="Example: My story about a student who…">
-
-    <div class="subhead">Add a major story event</div>
-    <label for="eventText">What happens?</label>
-    <textarea id="eventText" placeholder="Example: The main character realizes the danger is much bigger than expected."></textarea>
+    <div class="subhead">Add a major plot event</div>
+    <label for="eventText">What happens at this moment?</label>
+    <textarea id="eventText" placeholder="Example: Stanley is wrongly convicted and sent to Camp Green Lake."></textarea>
 
     <div class="fortune-wrap">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <label for="fortune">How is life going for the main character?</label>
+        <label for="fortune" style="margin:0;">Character's Fortune Level</label>
         <span id="fortuneValue" class="fortune-value">Neutral (0)</span>
       </div>
-      <input id="fortune" type="range" min="-5" max="5" step="1" value="0">
-      <div class="range-labels"><span>Much worse</span><span>Neutral</span><span>Much better</span></div>
+      <input id="fortune" type="range" min="-5" max="5" step="0.5" value="0">
+      <div class="range-labels">
+        <span style="color:#ef4444;">▼ Ill Fortune (-5)</span>
+        <span>Neutral (0)</span>
+        <span style="color:#10b981;">▲ Good Fortune (+5)</span>
+      </div>
     </div>
 
     <div class="buttons">
-      <button class="primary" onclick="addEvent()">Add event</button>
-      <button onclick="loadRandomExample()">Load random example</button>
+      <button class="primary" onclick="addEvent()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add Event
+      </button>
+      <button onclick="loadRandomExample()">Random Example</button>
       <button onclick="clearAll()">Clear</button>
     </div>
 
-    <div style="margin-top:10px;">
-      <label for="exampleSelect">Browse the 50-story arc library</label>
+    <div style="margin-top:14px;">
+      <label for="exampleSelect">Browse Curated Classroom Stories (40+)</label>
       <div class="row">
         <select id="exampleSelect" onchange="loadSelectedExample(this.value)">
-          <option value="">Choose a story…</option>
+          <option value="">Choose a story...</option>
         </select>
-        <button onclick="loadRandomExample()">Next random arc</button>
+        <button onclick="loadRandomExample()">Next Random</button>
       </div>
-      <div id="exampleStatus" style="font-size:11px;color:var(--muted);margin-top:6px;">
-        50 classroom-ready examples • random button avoids repeats until all have been seen
+      <div id="exampleStatus" style="font-size:11px;color:var(--muted);margin-top:5px;">
+        Includes sample in-between transitional summaries
       </div>
+    </div>
+
+    <div class="subhead" style="margin-top:18px;">
+      <span>Story Sequence &amp; In-Betweens</span>
+      <button class="small" onclick="toggleAllInBetweens()" id="btnToggleAllInBetweens">Collapse In-Betweens</button>
     </div>
 
     <div id="eventList" class="event-list"></div>
+
     <div class="tip">
-      <strong>Change the timing:</strong> Use each event’s <em>When?</em> slider, or drag a point
-      <strong>left/right</strong> on the graph. Drag <strong>up/down</strong> to change the fortune.
-      Events are connected in chronological order.
+      💡 <strong>In-Betweens:</strong> Write summaries in the blue transition cards between each event. These explain the rising action, journeys, or decisions connecting your major plot peaks and valleys!
     </div>
 
-    <div class="subhead">2. Compare with Vonnegut-inspired shapes</div>
-    <div class="tip">
-      <strong>Teacher move:</strong> Before showing the dashed shapes, ask students:
-      “Where do you think the story goes up? Where does it fall? What changes the direction?”
-      Then turn on a shape and compare it with your class plot.
-    </div>
-
+    <div class="subhead">Save &amp; Share</div>
     <div class="buttons">
-      <button onclick="toggleAllShapes()">Show / hide all shapes</button>
-      <button onclick="savePlanFile()">Save my plan</button>
-      <button onclick="saveStudentSubmissionFile()">Submit to teacher</button>
-      <button onclick="document.getElementById('planFile').click()">Load saved plan</button>
-      <button onclick="printPage()">Print plot</button>
+      <button onclick="toggleAllShapes()">Toggle All Shapes</button>
+      <button onclick="savePlanFile()">Export JSON</button>
+      <button onclick="document.getElementById('planFile').click()">Import JSON</button>
+      <button onclick="printPage()">Print / PDF Report</button>
       <input id="planFile" type="file" accept=".json,application/json" style="display:none" onchange="loadPlanFile(event)">
     </div>
-    <div class="tip">
-      <strong>Returning later:</strong> Your story tabs auto-save. When this tool is launched as an LTI tool, it can also use Canvas's tool storage when Canvas exposes that capability; otherwise it falls back to browser storage.
-    </div>
 
-    <div class="insight" id="insight">
-      Add 3–5 major events to begin seeing a recognizable story shape.
+    <div class="insight" id="insight" style="margin-top:16px;">
+      Add 3–5 major events to reveal the story shape arc.
     </div>
   </section>
 
+  <!-- Right Column: Canvas & Archetypes -->
   <section class="panel canvas-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-      <h2 style="margin:0;">Your class's story arc</h2>
-      <div style="display:flex;gap:8px;align-items:center;"><div id="saveStatus" style="font-size:11px;color:var(--muted);">Saving…</div><div id="eventCount" style="font-size:12px;color:var(--muted);">0 events</div></div>
+    <div class="canvas-toolbar">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <h2 style="margin:0;">The Story Shape Arc</h2>
+        <div class="curve-toggle-group">
+          <button id="btnCurveSmooth" class="curve-toggle-btn active" onclick="setCurveStyle('smooth')">Smooth Arc</button>
+          <button id="btnCurveLinear" class="curve-toggle-btn" onclick="setCurveStyle('linear')">Straight Segments</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <label style="font-size:12px;display:flex;align-items:center;gap:5px;margin:0;cursor:pointer;">
+          <input type="checkbox" id="showBridgesCheckbox" checked onchange="toggleBridgeBadges(this.checked)" style="width:auto;margin:0;">
+          <span>Show In-Between Badges (✦)</span>
+        </label>
+      </div>
     </div>
 
     <div class="chart-wrap">
-      <svg id="chart" viewBox="0 0 900 520" role="img" aria-label="Interactive story arc graph">
-        <!-- grid -->
+      <svg id="chart" viewBox="0 0 900 520" role="img" aria-label="Interactive Kurt Vonnegut Story Arc Plotter">
+        <defs>
+          <!-- Gradient for Good Fortune (Above Baseline) -->
+          <linearGradient id="goodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.02"/>
+          </linearGradient>
+          <!-- Gradient for Ill Fortune (Below Baseline) -->
+          <linearGradient id="badGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.02"/>
+            <stop offset="100%" stop-color="#ef4444" stop-opacity="0.35"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background grid -->
         <g id="grid"></g>
-        <line class="axis" x1="70" y1="50" x2="70" y2="450"></line>
-        <line class="axis" x1="70" y1="250" x2="850" y2="250"></line>
-        <text class="ytitle" x="12" y="44">BETTER / GOOD FORTUNE</text>
-        <text class="ytitle" x="14" y="470">WORSE / ILL FORTUNE</text>
-        <text class="xtitle" x="68" y="500">BEGINNING</text>
-        <text class="xtitle" x="790" y="500">END</text>
+
+        <!-- Baseline Y=0 (Average Day / Normal Fortune) -->
+        <line class="axis-zero" x1="70" y1="250" x2="850" y2="250"></line>
+        <text x="855" y="254" font-size="10" fill="#94a3b8" font-weight="600">Baseline (0)</text>
+
+        <!-- Vertical & Horizontal Main Axes -->
+        <line class="axis-main" x1="70" y1="40" x2="70" y2="460"></line>
+        <line class="axis-main" x1="70" y1="460" x2="850" y2="460"></line>
+
+        <!-- Axis Titles & Vonnegut G-E / B-E Annotations -->
+        <text class="axis-label" x="70" y="28">G: GOOD FORTUNE (Better)</text>
+        <text class="axis-subtitle" x="250" y="28">Health, wealth, love, success</text>
+
+        <text class="axis-label" x="70" y="488">I / E: ILL FORTUNE (Worse)</text>
+        <text class="axis-subtitle" x="250" y="488">Danger, grief, isolation, failure</text>
+
+        <text class="axis-label" x="70" y="476">B: BEGINNING</text>
+        <text class="axis-label" x="800" y="476" text-anchor="end">E: END (Entropy)</text>
+
+        <!-- Archetype Template Curves -->
         <g id="templates"></g>
-        <path id="userCurve" class="user-curve" d=""></path>
+
+        <!-- Shaded area fills under/over baseline -->
+        <path id="userAreaGood" class="user-area-good" d=""></path>
+        <path id="userAreaBad" class="user-area-bad" d=""></path>
+
+        <!-- User Story Arc Curves -->
+        <path id="userCurveShadow" class="user-curve-shadow" d=""></path>
+        <path id="userCurve" class="user-curve-line" d=""></path>
+
+        <!-- In-Between Bridge Nodes on Arc Curve -->
+        <g id="bridgeMarkers"></g>
+
+        <!-- Interactive Major Event Points -->
         <g id="points"></g>
+
+        <!-- Hover Tooltip Container -->
+        <g id="tooltipGroup" class="tooltip-box" style="opacity: 0; pointer-events: none;">
+          <rect id="tooltipBg" class="tooltip-bg" width="220" height="64"></rect>
+          <text id="tooltipTitle" class="tooltip-title" x="12" y="18">Event 1</text>
+          <text id="tooltipSub" class="tooltip-sub" x="12" y="32">Time: 15% | Fortune: +2</text>
+          <text id="tooltipDesc" class="tooltip-desc" x="12" y="48">Event summary...</text>
+        </g>
       </svg>
     </div>
 
-    <div class="legend" id="legend"></div>
-    <div class="tip">
-      <strong>Student language:</strong> The horizontal axis is <em>time</em>. The vertical axis is
-      <em>how the main character's situation is going</em>. The graph does not have to be perfectly smooth;
-      the goal is to explain why the line rises, falls, or stays flat.
+    <!-- Legend for Comparison Archetypes -->
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">
+        Kurt Vonnegut Archetype Overlays (Click to toggle)
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <!-- Narrative Breakdown Log (Visible on page and in print/export) -->
+    <div class="story-narrative-log">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h3 style="margin:0;font-size:15px;color:var(--ink);">Story Narrative Log (Events &amp; In-Betweens)</h3>
+        <span style="font-size:11px;color:var(--muted);">Full storyline breakdown</span>
+      </div>
+      <div id="narrativeLogList"></div>
     </div>
   </section>
-
-<section id="teacherPanel" class="panel teacher-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-    <h2 style="margin:0;">Teacher View</h2>
-    <button onclick="closeTeacherView()">Close Teacher View</button>
-  </div>
-  <div class="tip">
-    Use <strong>Import student work</strong> to review exported student plans. This static version does not have permission to read another student's Canvas workspace. A live teacher dashboard requires an LTI 1.3/server connection.
-  </div>
-  <div class="buttons">
-    <button class="primary" onclick="document.getElementById('teacherFiles').click()">Import student work</button>
-    <button onclick="exportTeacherReview()">Export reviewed packet</button>
-    <input id="teacherFiles" type="file" accept=".json,application/json" multiple style="display:none" onchange="importTeacherFiles(event)">
-  </div>
-  <div id="teacherSummary" style="margin-top:10px;font-size:12px;color:var(--muted);">No student plans imported yet.</div>
-  <div id="teacherCards"></div>
-</section>
-
 </main>
 
 <div class="footer-note">
-  Classroom tool based on Kurt Vonnegut's “Shapes of Stories” idea. The five comparison shapes here are simplified classroom approximations,
-  not mathematical formulas. A story can combine or resist shapes. The goal is to make plot movement visible and discuss evidence. Student tabs persist locally; Canvas-account syncing and a live cross-student teacher dashboard require LTI/server support.
+  Designed for classrooms studying plot structure, character development, and narrative arcs. Inspired by Kurt Vonnegut’s master’s thesis and lecture “The Shapes of Stories”.
 </div>
 
 <script>
+// --- Archetype Definitions ---
 const shapes = {
   "Man in Hole": {
-    desc: "Things get worse, then the character climbs back out.",
-    pts: [[0,1],[18,1],[38,-1],[55,-4],[72,-3],[88,0],[100,1.5]]
+    desc: "Main character gets into trouble, then climbs out better than before.",
+    color: "#6366f1", // Indigo
+    pts: [[0, 1.2], [18, 1], [38, -1.2], [55, -4.2], [72, -2.8], [88, 0.5], [100, 2.2]]
   },
   "Boy Meets Girl": {
-    desc: "A rise, a fall, then another rise.",
-    pts: [[0,0],[18,2],[35,3],[55,-1.5],[72,-3],[86,0],[100,2]]
+    desc: "Finds something wonderful, loses it, then regains it forever.",
+    color: "#ec4899", // Pink
+    pts: [[0, 0], [18, 2.2], [35, 3.4], [55, -1.8], [72, -3.2], [86, 0.5], [100, 2.8]]
   },
   "Cinderella": {
-    desc: "A climb from low fortune, a setback, then a big rise.",
-    pts: [[0,-4],[16,-3],[30,-2],[45,2],[60,4],[68,-1.8],[82,-1],[92,2.5],[100,4.5]]
+    desc: "Starts low, rises with temporary magic, plunges at midnight, achieves ultimate happiness.",
+    color: "#10b981", // Emerald
+    pts: [[0, -4], [16, -3], [30, -1.8], [45, 2], [60, 4.2], [68, -2], [82, -1], [92, 2.8], [100, 4.8]]
   },
   "From Bad to Worse": {
-    desc: "The situation keeps deteriorating.",
-    pts: [[0,0],[18,-0.7],[35,-1.3],[52,-2.1],[70,-3.1],[86,-3.8],[100,-4.5]]
+    desc: "Pessimistic or tragic descent where circumstances continually deteriorate.",
+    color: "#ef4444", // Red
+    pts: [[0, 0], [18, -0.8], [35, -1.6], [52, -2.5], [70, -3.4], [86, -4.2], [100, -4.8]]
   },
   "Good News / Bad News": {
-    desc: "Fortune keeps changing; the line moves up and down.",
-    pts: [[0,0],[12,1.4],[25,-0.8],[38,1.3],[50,-1.4],[63,1.6],[76,-1.2],[88,.8],[100,-.3]]
+    desc: "Constant rollercoaster of unforeseen twists; ambiguity about whether events are good or bad.",
+    color: "#f59e0b", // Amber
+    pts: [[0, 0], [12, 1.8], [25, -1.2], [38, 1.6], [50, -1.8], [63, 2.0], [76, -1.5], [88, 1.2], [100, -0.4]]
+  },
+  "Old Testament / Creation": {
+    desc: "Creation starts at the very top, followed by a fall from grace that remains low.",
+    color: "#8b5cf6", // Purple
+    pts: [[0, 4.8], [15, 4.5], [30, 4.0], [45, -3.5], [65, -3.8], [85, -4.0], [100, -4.2]]
   }
 };
 
-const TEACHER_PASSWORD = "CHANGE-ME-BEFORE-SHARING";
-const STORAGE_KEY = "vonnegutStoryShapePlotter_workspaces_v4";
-const CANVAS_STORAGE_KEY = "vonnegut_story_shape_plotter_workspaces";
-let workspaces = [];
-let currentWorkspaceId = null;
-let workspaceStatus = "Planning";
-let teacherImportedPlans = [];
-let teacherNotes = {};
-let canvasStorageSupported = false;
-let canvasStorageFrame = null;
-let saveTimer = null;
-let appInitializing = true;
-const pendingCanvasRequests = new Map();
-
+// --- State ---
 let events = [];
-let activeShapes = new Set();
+let activeShapes = new Set(["Man in Hole"]);
+let curveStyle = "smooth"; // 'smooth' or 'linear'
+let showBridges = true;
+let inBetweensExpanded = true;
 let mode = "review";
 let dragging = null;
+let hoveredIndex = null;
+let hoveredBridge = null; // { fromIdx, toIdx }
+let isInitializing = true;
+const STORAGE_KEY = "vonnegutStoryShapePlotter_v3";
 
+// DOM Elements
 const fortune = document.getElementById("fortune");
 const fortuneValue = document.getElementById("fortuneValue");
 const eventText = document.getElementById("eventText");
 const storyTitle = document.getElementById("storyTitle");
-const studentName = document.getElementById("studentName");
-const workspaceStatusInput = document.getElementById("workspaceStatus");
+const chart = document.getElementById("chart");
 
+// --- Coordinate Conversions ---
+function sx(percent) { return 70 + (Math.max(0, Math.min(100, percent)) / 100) * 780; }
+function sy(score) { return 250 - (Math.max(-5, Math.min(5, score)) / 5) * 200; }
+function invSx(px) { return Math.max(0, Math.min(100, ((px - 70) / 780) * 100)); }
+function invSy(py) { return Math.max(-5, Math.min(5, ((250 - py) / 200) * 5)); }
+
+// --- Fortune Slider Label ---
 fortune.addEventListener("input", updateFortuneLabel);
-storyTitle.addEventListener("input", updateWorkspaceFromInputs);
-studentName.addEventListener("input", updateWorkspaceFromInputs);
-workspaceStatusInput.addEventListener("change", updateWorkspaceFromInputs);
-
 function updateFortuneLabel() {
   const v = Number(fortune.value);
-  const word = v <= -4 ? "Much worse" : v <= -2 ? "Worse" : v < 1 ? "Neutral" : v < 4 ? "Better" : "Much better";
-  fortuneValue.textContent = `${word} (${v})`;
+  const word = v <= -3.5 ? "Much worse" : v <= -1.5 ? "Worse" : v < 1.5 ? (v === 0 ? "Neutral" : (v > 0 ? "Slightly better" : "Slightly worse")) : v < 3.5 ? "Better" : "Much better";
+  fortuneValue.textContent = `${word} (${v > 0 ? "+" : ""}${v})`;
 }
 updateFortuneLabel();
 
-
-function makeId() { return "ws_" + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
-function currentWorkspace() { return workspaces.find(w => w.id === currentWorkspaceId) || null; }
-
-function snapshotCurrentWorkspace() {
-  const ws = currentWorkspace();
-  if (!ws) return;
-  ws.title = storyTitle.value.trim() || "Untitled story";
-  ws.storyTitle = storyTitle.value;
-  ws.studentName = studentName.value.trim();
-  ws.events = events.map(e => ({text:e.text, score:Number(e.score), time:Number(e.time)}));
-  ws.activeShapes = Array.from(activeShapes);
-  ws.mode = mode;
-  ws.status = workspaceStatus;
-  ws.updatedAt = new Date().toISOString();
-}
-
-function createDefaultWorkspace(name) {
-  return {id:makeId(), title:name || "My Story 1", storyTitle:name || "My Story 1", studentName:"", events:[], activeShapes:[], mode:"own", status:"Planning", updatedAt:new Date().toISOString()};
-}
-
-function saveLocalState() {
-  try {
-    snapshotCurrentWorkspace();
-    const payload = JSON.stringify({version:4, workspaces, currentWorkspaceId, teacherNotes});
-    localStorage.setItem(STORAGE_KEY, payload);
-    return payload;
-  } catch (err) { return null; }
-}
-
-function scheduleSave() {
-  if (appInitializing) return;
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    const payload = saveLocalState();
-    if (payload && canvasStorageSupported) await canvasStoragePut(CANVAS_STORAGE_KEY, payload);
-    const status = document.getElementById("saveStatus");
-    if (status) status.textContent = canvasStorageSupported ? "Saved to Canvas + browser" : "Saved in this browser";
-  }, 300);
-}
-
-function requestCanvasCapabilities() {
-  return new Promise(resolve => {
-    if (window.parent === window) { resolve(false); return; }
-    const timer = setTimeout(() => resolve(false), 700);
-    const handler = event => {
-      const data = event.data || {};
-      if (data.subject !== "lti.capabilities.response") return;
-      clearTimeout(timer);
-      window.removeEventListener("message", handler);
-      const supported = Array.isArray(data.supported_messages) && data.supported_messages.some(x => x && x.subject === "lti.get_data") && data.supported_messages.some(x => x && x.subject === "lti.put_data");
-      const frameName = (data.supported_messages || []).find(x => x && x.subject === "lti.get_data")?.frame;
-      if (supported) {
-        canvasStorageSupported = true;
-        canvasStorageFrame = frameName || null;
-      }
-      resolve(supported);
-    };
-    window.addEventListener("message", handler);
-    window.parent.postMessage({subject:"lti.capabilities"}, "*");
-  });
-}
-
-function canvasTargetWindow() {
-  if (!canvasStorageFrame) return window.parent;
-  try { return window.parent.frames[canvasStorageFrame] || window.parent; } catch (err) { return window.parent; }
-}
-
-function canvasStorageGet(key) {
-  return new Promise(resolve => {
-    if (!canvasStorageSupported) { resolve(null); return; }
-    const message_id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
-    const timer = setTimeout(() => { pendingCanvasRequests.delete(message_id); resolve(null); }, 900);
-    pendingCanvasRequests.set(message_id, value => { clearTimeout(timer); pendingCanvasRequests.delete(message_id); resolve(value); });
-    canvasTargetWindow().postMessage({subject:"lti.get_data", key, message_id}, "*");
-  });
-}
-
-function canvasStoragePut(key, value) {
-  return new Promise(resolve => {
-    if (!canvasStorageSupported) { resolve(false); return; }
-    const message_id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
-    const timer = setTimeout(() => { pendingCanvasRequests.delete(message_id); resolve(false); }, 900);
-    pendingCanvasRequests.set(message_id, () => { clearTimeout(timer); pendingCanvasRequests.delete(message_id); resolve(true); });
-    canvasTargetWindow().postMessage({subject:"lti.put_data", key, value, message_id}, "*");
-  });
-}
-
-window.addEventListener("message", event => {
-  const data = event.data || {};
-  if (!data || !data.message_id) return;
-  const pending = pendingCanvasRequests.get(data.message_id);
-  if (pending) pending(data.value);
-});
-
-function normalizeWorkspace(ws, index=0) {
-  return {
-    id: ws.id || makeId(),
-    title: ws.title || ws.storyTitle || `My Story ${index+1}`,
-    storyTitle: ws.storyTitle || ws.title || `My Story ${index+1}`,
-    studentName: ws.studentName || "",
-    events: Array.isArray(ws.events) ? ws.events.map((e,i)=>({text:String(e.text||""), score:Math.max(-5,Math.min(5,Number(e.score)||0)), time:Math.max(0,Math.min(100,Number(e.time ?? (8+i*12))))})) : [],
-    activeShapes: Array.isArray(ws.activeShapes) ? ws.activeShapes : [],
-    mode: ws.mode === "review" ? "review" : "own",
-    status: ws.status || "Planning",
-    updatedAt: ws.updatedAt || new Date().toISOString()
-  };
-}
-
-function loadWorkspace(id, saveBefore=true) {
-  if (saveBefore) snapshotCurrentWorkspace();
-  const ws = workspaces.find(w => w.id === id);
-  if (!ws) return;
-  currentWorkspaceId = id;
-  storyTitle.value = ws.storyTitle || ws.title;
-  studentName.value = ws.studentName || "";
-  events = Array.isArray(ws.events) ? ws.events.map(e=>({...e})) : [];
-  activeShapes = new Set(Array.isArray(ws.activeShapes) ? ws.activeShapes : []);
-  workspaceStatus = ws.status || "Planning";
-  document.getElementById("workspaceStatus").value = workspaceStatus;
-  setMode(ws.mode === "review" ? "review" : "own");
-  renderWorkspaceTabs();
-  render();
-}
-
-function initializeLocalWorkspaces(raw) {
-  try {
-    if (raw) {
-      const state = JSON.parse(raw);
-      if (Array.isArray(state.workspaces) && state.workspaces.length) {
-        workspaces = state.workspaces.map(normalizeWorkspace);
-        currentWorkspaceId = state.currentWorkspaceId && workspaces.some(w=>w.id===state.currentWorkspaceId) ? state.currentWorkspaceId : workspaces[0].id;
-        teacherNotes = state.teacherNotes || {};
-        return true;
-      }
-    }
-  } catch (err) {}
-  workspaces = [createDefaultWorkspace("My Story 1")];
-  currentWorkspaceId = workspaces[0].id;
-  return false;
-}
-
-async function initializeApp() {
-  resetExampleShuffle();
-  populateExampleSelect();
-  let restored = false;
-  const canvasReady = await requestCanvasCapabilities();
-  if (canvasReady) {
-    const remote = await canvasStorageGet(CANVAS_STORAGE_KEY);
-    if (remote) restored = initializeLocalWorkspaces(remote);
-  }
-  if (!restored) restored = initializeLocalWorkspaces(localStorage.getItem(STORAGE_KEY));
-  if (!restored) loadWorkspace(currentWorkspaceId, false);
-  else loadWorkspace(currentWorkspaceId, false);
-  appInitializing = false;
-  render();
-  const status = document.getElementById("saveStatus");
-  if (status) status.textContent = canvasReady ? "Canvas storage available" : "Browser save available";
-}
-
-function renderWorkspaceTabs() {
-  const box = document.getElementById("workspaceTabs");
-  if (!box) return;
-  box.innerHTML = workspaces.map((w,i)=>`<button class="workspace-tab ${w.id===currentWorkspaceId?'active':''}" onclick="loadWorkspace('${w.id}')">${i+1}. ${escapeHtml(w.title||'Untitled')}</button>`).join("");
-}
-
-function newWorkspace() {
-  snapshotCurrentWorkspace();
-  const w = createDefaultWorkspace(`My Story ${workspaces.length+1}`);
-  workspaces.push(w);
-  loadWorkspace(w.id, false);
-  scheduleSave();
-}
-
-function duplicateWorkspace() {
-  snapshotCurrentWorkspace();
-  const ws = currentWorkspace();
-  if (!ws) return;
-  const copy = JSON.parse(JSON.stringify(ws));
-  copy.id = makeId(); copy.title = `${copy.title || "My Story"} Copy`; copy.storyTitle = copy.title; copy.updatedAt = new Date().toISOString();
-  workspaces.push(copy);
-  loadWorkspace(copy.id, false);
-  scheduleSave();
-}
-
-function renameWorkspace() {
-  const ws = currentWorkspace();
-  if (!ws) return;
-  const next = prompt("Name this story tab:", ws.title || "My Story");
-  if (!next) return;
-  ws.title = next.trim() || ws.title;
-  storyTitle.value = ws.title;
-  snapshotCurrentWorkspace();
-  renderWorkspaceTabs();
-  scheduleSave();
-}
-
-function deleteWorkspace() {
-  if (workspaces.length <= 1) { alert("Keep at least one story tab."); return; }
-  const ws = currentWorkspace();
-  if (!ws) return;
-  if (!confirm(`Delete “${ws.title}”?`)) return;
-  const idx = workspaces.findIndex(w=>w.id===ws.id);
-  workspaces.splice(idx,1);
-  currentWorkspaceId = workspaces[Math.max(0, idx-1)].id;
-  loadWorkspace(currentWorkspaceId, false);
-  scheduleSave();
-}
-
-function updateWorkspaceFromInputs() {
-  const ws = currentWorkspace();
-  if (!ws) return;
-  ws.title = storyTitle.value.trim() || ws.title || "Untitled story";
-  ws.storyTitle = storyTitle.value;
-  ws.studentName = studentName.value.trim();
-  workspaceStatus = workspaceStatusInput.value;
-  ws.status = workspaceStatus;
-  ws.updatedAt = new Date().toISOString();
-  renderWorkspaceTabs();
-  scheduleSave();
-}
-
 function setMode(next) {
   mode = next;
-  document.getElementById("reviewMode").classList.toggle("active", next==="review");
-  document.getElementById("ownMode").classList.toggle("active", next==="own");
-  document.getElementById("insight").textContent =
+  document.getElementById("reviewMode").classList.toggle("active", next === "review");
+  document.getElementById("ownMode").classList.toggle("active", next === "own");
+  document.getElementById("insight").innerHTML =
     next === "review"
-      ? "Review mode: plot what actually happens in the text. Ask, “What evidence makes this moment better or worse for the character?”"
-      : "Planning mode: invent a few key moments first. Do not worry about perfect wording—focus on the movement of the story.";
+      ? "<strong>Review mode:</strong> Plot what happens in the text. Ask: <em>“What evidence makes this moment better or worse for the protagonist?”</em>"
+      : "<strong>Planning mode:</strong> Brainstorm major turning points. Focus on the emotional movement and in-between transitions before writing!";
+  savePlanToBrowser();
 }
 
-function addEvent() {
-  const text = eventText.value.trim();
-  if (!text) return;
-  events.push({text, score:Number(fortune.value), time: events.length === 0 ? 8 : Math.min(95, 8 + events.length * 12)});
-  eventText.value = "";
-  fortune.value = 0;
-  updateFortuneLabel();
-  render();
-  eventText.focus();
+function setCurveStyle(style) {
+  curveStyle = style;
+  document.getElementById("btnCurveSmooth").classList.toggle("active", style === "smooth");
+  document.getElementById("btnCurveLinear").classList.toggle("active", style === "linear");
+  renderUserCurve();
+  renderBridgeMarkers();
 }
 
-function deleteEvent(i) {
-  events.splice(i,1);
-  render();
+function toggleBridgeBadges(enabled) {
+  showBridges = enabled;
+  renderBridgeMarkers();
 }
 
-function clearAll() {
-  events = [];
-  activeShapes.clear();
-  render();
+function toggleAllInBetweens() {
+  inBetweensExpanded = !inBetweensExpanded;
+  document.getElementById("btnToggleAllInBetweens").textContent = inBetweensExpanded ? "Collapse In-Betweens" : "Expand In-Betweens";
+  document.querySelectorAll(".inbetween-textarea").forEach(el => {
+    el.style.display = inBetweensExpanded ? "block" : "none";
+  });
 }
 
+// --- Monotone Spline (Fritsch-Carlson) & Cubic Midpoints ---
+function computeSplineSegments(pts) {
+  const n = pts.length;
+  if (n < 2) return [];
 
-const exampleLibrary = [
-  {
-    title:"Holes",
-    shape:"Man in Hole",
-    events:[
-      ["Stanley is blamed for a crime he did not commit.",-3,5],
-      ["He is sent to Camp Green Lake.",-4,18],
-      ["Digging reveals a hidden history beneath the camp.",-2,34],
-      ["Stanley and Zero become friends and help each other.",1,51],
-      ["They survive in the wilderness and uncover the truth.",3,70],
-      ["The curse and the unfair system are finally broken.",5,96]
-    ]
-  },
-  {
-    title:"Wonder",
-    shape:"Man in Hole",
-    events:[
-      ["Auggie starts school worried about how others will treat him.",-3,6],
-      ["He is left out and hurt by some classmates.",-4,25],
-      ["A few classmates choose friendship and kindness.",0,43],
-      ["Auggie finds a stronger sense of belonging.",2,62],
-      ["A difficult conflict tests the friendships.",-1,76],
-      ["Auggie is recognized for his courage and kindness.",4,96]
-    ]
-  },
-  {
-    title:"The Lightning Thief",
-    shape:"Boy Meets Girl",
-    events:[
-      ["Percy learns that the strange events around him are real.",-1,8],
-      ["He discovers his identity and gains a dangerous quest.",1,25],
-      ["The quest brings him new friends and hope.",3,42],
-      ["A betrayal and growing danger change everything.",-2,65],
-      ["Percy confronts the real threat behind the conflict.",-4,82],
-      ["He returns having completed the quest and learned more about himself.",3,97]
-    ]
-  },
-  {
-    title:"Hatchet",
-    shape:"Man in Hole",
-    events:[
-      ["Brian is traveling by plane, carrying personal worries.",-1,7],
-      ["The plane crashes and Brian is stranded alone.",-5,22],
-      ["He struggles to find food, shelter, and confidence.",-4,39],
-      ["He learns how to make tools and survive.",0,55],
-      ["A setback forces him to rethink his survival plan.",-2,70],
-      ["Brian gains resources and realizes how much he has changed.",4,96]
-    ]
-  },
-  {
-    title:"Esperanza Rising",
-    shape:"Cinderella",
-    events:[
-      ["Esperanza begins life surrounded by comfort and family.",4,6],
-      ["A tragedy forces her family to leave Mexico.",-3,23],
-      ["She struggles to adapt to a new life and new work.",-4,42],
-      ["Esperanza builds relationships and learns new skills.",0,59],
-      ["Another crisis threatens her family's future.",-2,75],
-      ["Esperanza takes action and helps create a more hopeful future.",4,96]
-    ]
-  },
-  {
-    title:"The Giver",
-    shape:"Good News / Bad News",
-    events:[
-      ["Jonas receives an honored assignment in his seemingly perfect community.",2,7],
-      ["He begins learning memories that reveal painful truths.",0,26],
-      ["He discovers that important parts of his world have been hidden.",-2,43],
-      ["He sees moments of beauty and feels closer to another way of living.",1,58],
-      ["Learning the truth creates a dangerous responsibility.",-4,76],
-      ["Jonas chooses to act rather than accept the system.",-1,97]
-    ]
-  },
-  {
-    title:"Number the Stars",
-    shape:"Man in Hole",
-    events:[
-      ["Annemarie lives an ordinary life with her family.",1,8],
-      ["War changes daily life and makes the family's safety uncertain.",-2,28],
-      ["Annemarie learns that her family is helping others.",-3,47],
-      ["She faces a dangerous moment and must be brave.",-4,67],
-      ["Her actions help protect someone who is in danger.",1,84],
-      ["The immediate danger passes and hope returns.",3,97]
-    ]
-  },
-  {
-    title:"Because of Winn-Dixie",
-    shape:"Man in Hole",
-    events:[
-      ["Opal feels lonely after moving to a new town.",-2,7],
-      ["She adopts a stray dog and begins meeting people.",1,24],
-      ["New friendships make her world feel larger.",3,45],
-      ["A misunderstanding and storm bring old sadness back.",-2,65],
-      ["Opal begins to understand her own feelings and relationships.",1,82],
-      ["She ends with a stronger sense of community.",4,97]
-    ]
-  },
-  {
-    title:"A Wrinkle in Time",
-    shape:"Boy Meets Girl",
-    events:[
-      ["Meg struggles with school and worries about her missing father.",-2,7],
-      ["She learns that her father may still be alive.",1,21],
-      ["Meg and her companions travel to rescue him.",3,43],
-      ["They encounter a force that threatens their freedom.",-3,66],
-      ["Meg faces the danger by relying on love and connection.",-1,83],
-      ["She brings her family together and escapes the threat.",4,98]
-    ]
-  },
-  {
-    title:"Bridge to Terabithia",
-    shape:"Man in Hole",
-    events:[
-      ["Jess feels stuck in his ordinary life.",-1,7],
-      ["He becomes friends with Leslie.",2,23],
-      ["They create Terabithia and find confidence together.",4,45],
-      ["A sudden tragedy changes Jess's life.",-5,67],
-      ["He struggles with grief and guilt.",-4,82],
-      ["Jess begins to carry Leslie's courage forward.",1,98]
-    ]
-  },
-  {
-    title:"Frindle",
-    shape:"Cinderella",
-    events:[
-      ["Nick is an energetic student who loves testing limits.",2,6],
-      ["He discovers a way to challenge how language works.",3,24],
-      ["The new word spreads farther than expected.",4,43],
-      ["Adults and the community push back.",-1,63],
-      ["Nick learns that an idea can grow beyond his control.",1,80],
-      ["The word becomes established and Nick sees the long-term result.",5,97]
-    ]
-  },
-  {
-    title:"Tuck Everlasting",
-    shape:"Boy Meets Girl",
-    events:[
-      ["Winnie feels trapped by the rules of her home.",-1,8],
-      ["She meets the Tuck family and discovers a secret.",2,25],
-      ["The secret offers freedom but also raises difficult questions.",3,45],
-      ["A threat puts the Tucks in danger.",-3,67],
-      ["Winnie makes a difficult moral choice.",-2,83],
-      ["She returns to her life with a deeper understanding of time.",2,98]
-    ]
-  },
-  {
-    title:"Roll of Thunder, Hear My Cry",
-    shape:"Man in Hole",
-    events:[
-      ["Cassie begins the year connected to her family and community.",2,7],
-      ["Racism and injustice repeatedly threaten the Logans.",-2,26],
-      ["Cassie learns to recognize the power behind unfair rules.",-3,45],
-      ["Her family takes risks to protect their land and dignity.",-1,62],
-      ["Violence and danger reach the community.",-5,78],
-      ["Cassie sees her family make a painful sacrifice to survive.",-2,98]
-    ]
-  },
-  {
-    title:"Maniac Magee",
-    shape:"Good News / Bad News",
-    events:[
-      ["Jeffrey finds freedom after running away.",2,8],
-      ["He struggles because he has no stable home.",-2,27],
-      ["He makes friends and finds places where he belongs.",3,45],
-      ["Racial divisions repeatedly disrupt his sense of belonging.",-3,66],
-      ["He helps bring people together through his actions.",2,83],
-      ["He has a chance to build a more stable life.",4,97]
-    ]
-  },
-  {
-    title:"Out of My Mind",
-    shape:"Cinderella",
-    events:[
-      ["Melody knows she is capable but has trouble being heard.",-2,6],
-      ["She gets access to a communication device.",2,25],
-      ["Her academic talents become visible to others.",4,43],
-      ["She is invited onto the quiz team.",5,59],
-      ["A hurtful event makes her feel excluded again.",-4,78],
-      ["Melody reclaims her voice and sees who truly supports her.",2,98]
-    ]
-  },
-  {
-    title:"Inside Out & Back Again",
-    shape:"Man in Hole",
-    events:[
-      ["Ha feels secure in her home and familiar routines.",3,7],
-      ["War forces her family to flee Vietnam.",-4,25],
-      ["Life in a new place is confusing and difficult.",-3,47],
-      ["Ha learns English and builds new relationships.",0,65],
-      ["A final challenge tests how much she has changed.",-1,82],
-      ["She finds a growing sense of home and possibility.",3,98]
-    ]
-  },
-  {
-    title:"Refugee",
-    shape:"Good News / Bad News",
-    events:[
-      ["Three young people begin life in very different circumstances.",2,5],
-      ["War or persecution forces each family to leave home.",-4,22],
-      ["They find moments of safety and hope during the journey.",0,39],
-      ["New dangers threaten them again.",-5,59],
-      ["Strangers and family members create unexpected help.",1,78],
-      ["Each character reaches a new stage of life with hope mixed with loss.",2,98]
-    ]
-  },
-  {
-    title:"Restart",
-    shape:"Man in Hole",
-    events:[
-      ["Chase wakes up with no memory of the accident.",-2,6],
-      ["He learns that people remember a troubling version of him.",-3,26],
-      ["He begins making different choices at school.",1,45],
-      ["His past catches up with him and creates new conflict.",-2,67],
-      ["He takes responsibility and acts to repair harm.",2,84],
-      ["He earns a chance to define himself through his choices.",4,98]
-    ]
-  },
-  {
-    title:"Fish in a Tree",
-    shape:"Cinderella",
-    events:[
-      ["Ally hides her reading struggles by acting out.",-2,6],
-      ["A new teacher notices strengths other adults missed.",1,24],
-      ["Ally finds strategies that help her learn.",3,43],
-      ["A social problem makes school feel unsafe again.",-1,62],
-      ["Ally uses what she has learned to advocate for herself.",2,83],
-      ["She begins to see herself as capable.",5,98]
-    ]
-  },
-  {
-    title:"The One and Only Ivan",
-    shape:"Man in Hole",
-    events:[
-      ["Ivan lives in a familiar routine at the mall.",-1,7],
-      ["He meets a young elephant whose situation worries him.",-2,27],
-      ["Ivan and his friends form strong bonds.",1,45],
-      ["He realizes the mall is not a safe long-term home.",-3,63],
-      ["Ivan works toward a better future for Ruby.",0,81],
-      ["Ruby and Ivan move toward a more natural home.",4,98]
-    ]
-  },
-  {
-    title:"The Wild Robot",
-    shape:"Man in Hole",
-    events:[
-      ["Roz arrives alone on an unfamiliar island.",-2,6],
-      ["She is rejected by the animals and must learn to survive.",-4,25],
-      ["She adapts and forms unexpected friendships.",1,45],
-      ["Roz becomes responsible for a young gosling.",3,62],
-      ["Danger threatens Roz and the community.",-2,78],
-      ["Roz's choices protect the animals she has come to love.",4,98]
-    ]
-  },
-  {
-    title:"Front Desk",
-    shape:"Cinderella",
-    events:[
-      ["Mia begins helping her family run a motel.",0,7],
-      ["She learns that many people at the motel are vulnerable.",-2,25],
-      ["Mia discovers that her words and kindness can help others.",2,43],
-      ["A threat puts the motel and her family at risk.",-3,64],
-      ["Mia and her friends organize to solve the problem.",1,82],
-      ["Her family gains more security and hope.",4,97]
-    ]
-  },
-  {
-    title:"Ghost",
-    shape:"Man in Hole",
-    events:[
-      ["Castle Cranshaw arrives at track carrying anger and a difficult past.",-2,6],
-      ["Coach notices his speed but challenges his behavior.",0,24],
-      ["Castle earns a place on the team and starts believing in himself.",2,42],
-      ["A conflict outside practice threatens his progress.",-2,63],
-      ["Castle chooses to return and prove he belongs.",3,84],
-      ["He starts seeing a different future for himself.",4,98]
-    ]
-  },
-  {
-    title:"New Kid",
-    shape:"Good News / Bad News",
-    events:[
-      ["Jordan begins at a school where he feels out of place.",-2,6],
-      ["He finds friends and moments of belonging.",1,25],
-      ["He notices unfair assumptions about students and identity.",-1,43],
-      ["Art gives Jordan a way to process what he sees.",2,61],
-      ["A conflict exposes tensions at school.",-3,79],
-      ["Jordan gains a stronger voice and sense of self.",2,98]
-    ]
-  },
-  {
-    title:"Brown Girl Dreaming",
-    shape:"Cinderella",
-    events:[
-      ["Jacqueline grows up surrounded by family stories and places.",2,6],
-      ["She experiences separation and uncertainty between homes.",-1,24],
-      ["She discovers that words and poems help her make sense of life.",3,44],
-      ["Questions about race and belonging become sharper.",-2,64],
-      ["Jacqueline begins trusting her own voice.",3,83],
-      ["Writing becomes a way to imagine and claim a future.",5,98]
-    ]
-  },
-  {
-    title:"Rules",
-    shape:"Man in Hole",
-    events:[
-      ["Catherine wants a normal summer while caring about her family.",0,7],
-      ["She meets Jason and begins seeing her brother differently.",1,26],
-      ["Friendship makes Catherine question some of her assumptions.",2,44],
-      ["A conflict exposes how much shame and fear she has been carrying.",-2,65],
-      ["Catherine chooses honesty instead of hiding people she loves.",1,83],
-      ["She leaves with a more accepting view of herself and others.",4,98]
-    ]
-  },
-  {
-    title:"The Watsons Go to Birmingham—1963",
-    shape:"Man in Hole",
-    events:[
-      ["Kenny's family has a lively but familiar routine.",2,6],
-      ["The family travels to Birmingham during a tense period.",0,28],
-      ["Kenny experiences the serious effects of racism and violence.",-4,52],
-      ["A tragedy changes the way Kenny understands the world.",-5,73],
-      ["His family helps him begin healing.",-1,88],
-      ["Kenny moves forward carrying a new understanding.",2,98]
-    ]
-  },
-  {
-    title:"Bud, Not Buddy",
-    shape:"Man in Hole",
-    events:[
-      ["Bud leaves an unsafe foster home determined to find his father.",-2,7],
-      ["He survives by following rules he has made for himself.",-3,25],
-      ["Music and a welcoming family give him clues and hope.",1,44],
-      ["A misunderstanding threatens his new sense of belonging.",-1,64],
-      ["Bud learns more about his family history.",2,82],
-      ["He begins to imagine a real home.",4,98]
-    ]
-  },
-  {
-    title:"The Miraculous Journey of Edward Tulane",
-    shape:"Good News / Bad News",
-    events:[
-      ["Edward begins life proud, admired, and deeply self-focused.",4,6],
-      ["He is lost and separated from the person who owned him.",-3,22],
-      ["He experiences kindness and forms new attachments.",2,42],
-      ["He suffers another painful loss.",-4,58],
-      ["Each new relationship changes what he understands about love.",1,78],
-      ["Edward becomes capable of giving and receiving love.",4,98]
-    ]
-  },
-  {
-    title:"The House on Mango Street",
-    shape:"Cinderella",
-    events:[
-      ["Esperanza feels trapped by her neighborhood and circumstances.",-2,7],
-      ["She makes friends and finds beauty in small moments.",1,27],
-      ["She discovers the power of writing.",3,46],
-      ["She witnesses experiences that challenge her hopes.",-2,65],
-      ["Writing gives her a way to understand and resist limitations.",2,84],
-      ["She imagines leaving while still remembering where she came from.",4,98]
-    ]
-  },
-  {
-    title:"The Crossover",
-    shape:"Man in Hole",
-    events:[
-      ["Josh feels confident in basketball and close to his brother.",3,6],
-      ["Family changes and sibling tension create new pressure.",1,26],
-      ["Basketball success gives Josh a sense of momentum.",4,43],
-      ["A major family crisis changes everything.",-5,68],
-      ["Josh struggles with grief and regret.",-4,83],
-      ["He begins to heal and reconnect with his family.",1,98]
-    ]
-  },
-  {
-    title:"Ghost Boys",
-    shape:"Man in Hole",
-    events:[
-      ["Jerome's life ends suddenly, leaving him confused and invisible.",-4,6],
-      ["He meets another ghost who helps him understand what happened.",-3,26],
-      ["Jerome learns about earlier acts of violence and injustice.",-4,45],
-      ["He begins to see the impact of his story on living people.",-1,64],
-      ["He chooses to help a living child break a cycle of harm.",2,84],
-      ["Jerome's story becomes part of a larger call for understanding.",3,98]
-    ]
-  },
-  {
-    title:"The Parker Inheritance",
-    shape:"Cinderella",
-    events:[
-      ["Candice finds a mysterious letter connected to her town.",1,7],
-      ["She and Brandon begin investigating the history behind it.",2,25],
-      ["Clues reveal hidden racism and a long-buried injustice.",0,45],
-      ["The investigation creates tension and wrong turns.",-2,64],
-      ["The kids solve key parts of the mystery.",2,82],
-      ["The town has a chance to face its past more honestly.",4,98]
-    ]
-  },
-  {
-    title:"The Westing Game",
-    shape:"Good News / Bad News",
-    events:[
-      ["The heirs are gathered with the chance to inherit a fortune.",3,6],
-      ["A confusing set of clues creates competition and suspicion.",-1,25],
-      ["Some players make progress and discover allies.",2,44],
-      ["New clues create more questions and betrayals.",-2,62],
-      ["The teams recognize that the mystery is not what it seemed.",1,81],
-      ["The final solution changes how the characters understand the game.",4,98]
-    ]
-  },
-  {
-    title:"The City of Ember",
-    shape:"Man in Hole",
-    events:[
-      ["Lina and Doon live in a city whose systems are failing.",-1,6],
-      ["Blackouts and shortages make the future uncertain.",-3,25],
-      ["They discover a message that may explain how to escape.",0,45],
-      ["Authority figures try to stop them from investigating.",-2,65],
-      ["They decode the message and find a possible route out.",2,83],
-      ["The escape reveals a world beyond Ember.",4,98]
-    ]
-  },
-  {
-    title:"The Wild Book",
-    shape:"Cinderella",
-    events:[
-      ["A young narrator enters a difficult new family situation.",-2,7],
-      ["Family stories and books give clues about the past.",0,27],
-      ["The narrator begins finding confidence through reading.",2,45],
-      ["A family secret creates another setback.",-2,65],
-      ["New understanding helps the family reconnect.",2,84],
-      ["Reading and storytelling become sources of strength.",4,98]
-    ]
-  },
-  {
-    title:"The Last Kids on Earth",
-    shape:"Boy Meets Girl",
-    events:[
-      ["Jack is trying to survive the monster-filled world alone.",-2,6],
-      ["He builds a team of friends and gains confidence.",2,24],
-      ["The group turns survival into an adventure.",4,43],
-      ["A major monster threat breaks their sense of safety.",-3,64],
-      ["The friends use creativity and teamwork to fight back.",1,82],
-      ["They end with a stronger group and a new goal.",4,98]
-    ]
-  },
-  {
-    title:"Amari and the Night Brothers",
-    shape:"Cinderella",
-    events:[
-      ["Amari enters a hidden world while searching for her brother.",-1,7],
-      ["She discovers magical abilities and a place where she may belong.",2,25],
-      ["Training gives her confidence and allies.",4,45],
-      ["A dangerous accusation threatens her position.",-3,65],
-      ["Amari uncovers a deeper truth and chooses to act.",1,83],
-      ["She gains a clearer sense of who she is and what she can do.",4,98]
-    ]
-  },
-  {
-    title:"The Mysterious Benedict Society",
-    shape:"Good News / Bad News",
-    events:[
-      ["Reynie and the other children are chosen for a mysterious mission.",2,6],
-      ["They make progress but discover that adults are hiding information.",1,24],
-      ["The team becomes more united as the danger grows.",3,43],
-      ["The children realize the mission is more dangerous than expected.",-3,64],
-      ["They use teamwork to resist manipulation.",0,82],
-      ["They help expose the plan and protect others.",4,98]
-    ]
-  },
-  {
-    title:"Where the Red Fern Grows",
-    shape:"Man in Hole",
-    events:[
-      ["Billy dreams of owning hunting dogs and works toward the goal.",2,7],
-      ["He finally gets his dogs and trains them.",4,25],
-      ["The dogs become skilled and Billy feels successful.",5,45],
-      ["A dangerous hunt puts the family and dogs at risk.",-2,65],
-      ["Billy faces heartbreaking loss.",-5,84],
-      ["He carries the lessons of love, loyalty, and courage forward.",-1,98]
-    ]
-  },
-  {
-    title:"The Watsons Learn How to Navigate Adventure",
-    shape:"Good News / Bad News",
-    events:[
-      ["A family starts with jokes, sibling trouble, and everyday routines.",2,7],
-      ["A move and family conflict create new problems.",0,28],
-      ["The kids discover that their family can handle difficult situations.",3,45],
-      ["A dangerous event changes the tone of the journey.",-4,67],
-      ["Family members help one another through fear.",-1,83],
-      ["They return with a deeper understanding of each other.",2,98]
-    ]
-  },
-  {
-    title:"The Girl Who Drank the Moon",
-    shape:"Cinderella",
-    events:[
-      ["Luna grows up cared for by people who do not fully understand her magic.",1,6],
-      ["Her powers begin to emerge and become harder to control.",2,26],
-      ["She learns truths about her family and the wider world.",3,45],
-      ["A powerful conflict threatens the people she loves.",-3,64],
-      ["Luna uses her growing understanding to fight back.",1,83],
-      ["The truth is revealed and the community begins to heal.",4,98]
-    ]
-  },
-  {
-    title:"A Long Walk to Water",
-    shape:"Good News / Bad News",
-    events:[
-      ["Salva's life is disrupted by war and he must flee.",-4,7],
-      ["He survives a dangerous journey with small moments of hope.",-2,29],
-      ["He finds safety and begins building a new life.",2,49],
-      ["New obstacles force him to adapt again.",-1,66],
-      ["Salva gains education and a way to help others.",3,84],
-      ["His work connects his past experience to a hopeful future.",5,98]
-    ]
-  },
-  {
-    title:"The Watsons and the Search for Home",
-    shape:"Man in Hole",
-    events:[
-      ["A young protagonist begins confident in familiar routines.",2,7],
-      ["Family circumstances force a major change.",-2,27],
-      ["New relationships provide moments of belonging.",1,45],
-      ["A serious event creates fear and uncertainty.",-4,67],
-      ["Family members respond with courage and care.",0,84],
-      ["The protagonist sees home and family in a new way.",3,98]
-    ]
-  },
-  {
-    title:"The True Confessions of Charlotte Doyle",
-    shape:"Cinderella",
-    events:[
-      ["Charlotte boards a ship expecting a proper, orderly journey.",2,6],
-      ["The voyage becomes more dangerous and mysterious.",-1,25],
-      ["Charlotte begins questioning the captain and crew.",1,44],
-      ["She is accused and loses the protection she expected.",-4,64],
-      ["She takes risks to discover the truth.",0,82],
-      ["Charlotte makes her own choices instead of following expectations.",4,98]
-    ]
-  },
-  {
-    title:"The Candymakers",
-    shape:"Good News / Bad News",
-    events:[
-      ["A group of kids arrives with different reasons for entering a candy contest.",2,6],
-      ["Competition creates tension and secrecy.",0,25],
-      ["Friendships grow as the kids work together.",3,43],
-      ["A hidden plan creates a major setback.",-2,64],
-      ["The group learns that their assumptions were incomplete.",1,82],
-      ["They finish the contest with stronger friendships and new understanding.",4,98]
-    ]
-  },
-  {
-    title:"Save Me a Seat",
-    shape:"Boy Meets Girl",
-    events:[
-      ["Two students begin the school year feeling misunderstood.",-2,6],
-      ["They each find small moments of connection.",0,25],
-      ["Their lives begin to intersect in unexpected ways.",2,43],
-      ["A school problem makes each feel more isolated.",-3,65],
-      ["They decide to support one another.",1,84],
-      ["Both begin to feel more capable of navigating school.",3,98]
-    ]
-  },
-  {
-    title:"Stargirl",
-    shape:"Cinderella",
-    events:[
-      ["Leo notices Stargirl because she refuses to blend in.",2,7],
-      ["Her individuality attracts attention and admiration.",4,27],
-      ["Social pressure pushes Leo and Stargirl closer, then apart.",-2,48],
-      ["Leo tries to change how Stargirl acts.",-4,66],
-      ["Stargirl chooses to remain herself.",1,83],
-      ["Leo reflects on what he learned about being different.",3,98]
-    ]
-  },
-  {
-    title:"The Boy in the Striped Pajamas",
-    shape:"From Bad to Worse",
-    events:[
-      ["Bruno moves to an unfamiliar home and feels confused.",-1,7],
-      ["He becomes curious about a fenced place nearby.",-2,25],
-      ["He forms a friendship across the fence without understanding the danger.",-3,45],
-      ["The adults' conflict becomes more visible.",-4,67],
-      ["Bruno makes a dangerous choice to help his friend.",-5,84],
-      ["The consequences are devastating.",-5,98]
-    ]
-  },
-  {
-    title:"The Lightning Thief: Camp Arc",
-    shape:"Boy Meets Girl",
-    events:[
-      ["Percy enters a new camp where he finally has some answers.",1,6],
-      ["He discovers friends who make the quest feel possible.",3,25],
-      ["The group gains confidence after solving early problems.",4,44],
-      ["A betrayal makes Percy question who he can trust.",-3,65],
-      ["The group confronts the larger threat together.",-1,83],
-      ["Percy returns changed by what he learned.",3,98]
-    ]
-  },
-  {
-    title:"The BFG",
-    shape:"Cinderella",
-    events:[
-      ["Sophie is lonely and unexpectedly meets the BFG.",-1,7],
-      ["She discovers that the giant is kind and different from others.",2,25],
-      ["She learns about a threat from other giants.",-1,43],
-      ["Sophie and the BFG create a plan to stop them.",3,61],
-      ["The plan faces a dangerous setback.",-2,76],
-      ["They succeed and Sophie gains a new kind of family.",4,98]
-    ]
-  },
-  {
-    title:"Matilda",
-    shape:"Cinderella",
-    events:[
-      ["Matilda feels underestimated by her family.",-2,6],
-      ["She finds joy and competence through reading and school.",2,23],
-      ["Her kind teacher recognizes her abilities.",4,41],
-      ["The cruel headmistress makes school dangerous.",-2,62],
-      ["Matilda uses her power and courage to help change things.",3,81],
-      ["Matilda finds a home where she is understood.",5,98]
-    ]
-  },
-  {
-    title:"The Invention of Hugo Cabret",
-    shape:"Man in Hole",
-    events:[
-      ["Hugo survives alone in a train station while protecting a secret.",-2,7],
-      ["He meets Isabelle and begins trusting someone.",1,27],
-      ["The mystery of the automaton grows more important.",2,44],
-      ["Hugo's safety and secrets are threatened.",-3,66],
-      ["The children uncover the truth behind the machine and its creator.",2,83],
-      ["Hugo finds a place where his skills and story are valued.",4,98]
-    ]
-  },
-  {
-    title:"Wonderstruck",
-    shape:"Good News / Bad News",
-    events:[
-      ["Ben and Rose each begin searching for something missing in their lives.",-2,6],
-      ["Each discovers clues and moments of connection.",1,24],
-      ["Their searches become more dangerous and confusing.",-1,43],
-      ["They uncover pieces of a family history.",2,62],
-      ["A final discovery brings both stories together.",3,82],
-      ["They gain new understanding of family and belonging.",5,98]
-    ]
-  },
-  {
-    title:"The Wild Robot Escapes",
-    shape:"Man in Hole",
-    events:[
-      ["Roz is separated from the island and must adapt again.",-3,7],
-      ["She encounters people and places that do not understand her.",-2,28],
-      ["She finds allies and clues that guide her.",1,46],
-      ["Her past and the technology hunting her create danger.",-3,66],
-      ["Roz chooses to protect the people and animals she loves.",1,84],
-      ["She moves toward a new version of home.",4,98]
-    ]
-  },
-  {
-    title:"The Hunger Games",
-    shape:"Good News / Bad News",
-    events:[
-      ["Katniss volunteers to protect someone she loves.",-2,6],
-      ["She earns allies and moments of hope in the arena.",2,24],
-      ["The competition becomes increasingly dangerous.",-2,44],
-      ["Katniss and Peeta turn the Capitol's rules against it.",2,62],
-      ["The final choices put both of their lives at risk.",-4,81],
-      ["They survive, but the larger conflict is not resolved.",1,98]
-    ]
-  },
-  {
-    title:"Percy Jackson: Sea of Monsters",
-    shape:"Man in Hole",
-    events:[
-      ["Percy begins the quest hoping to protect his camp.",1,6],
-      ["The barrier protecting camp begins failing.",-2,24],
-      ["Percy gains help and finds a path toward the cure.",1,43],
-      ["The quest reveals a betrayal and greater danger.",-3,64],
-      ["Percy and his friends confront the threat together.",-1,82],
-      ["The immediate danger is solved, but a larger mystery remains.",2,98]
-    ]
-  },
-  {
-    title:"The Hobbit",
-    shape:"Man in Hole",
-    events:[
-      ["Bilbo begins comfortable and reluctant to leave home.",1,6],
-      ["The journey puts him in unfamiliar danger.",-2,25],
-      ["He discovers courage and cleverness.",2,43],
-      ["The group faces conflict and growing pressure over treasure.",-1,61],
-      ["Bilbo makes a difficult choice that helps others.",1,81],
-      ["He returns home changed by the adventure.",4,98]
-    ]
-  },
-  {
-    title:"Coraline",
-    shape:"Man in Hole",
-    events:[
-      ["Coraline is bored and curious about the mysterious door.",0,7],
-      ["The alternate world seems more exciting than home.",3,27],
-      ["She realizes the alternate world is dangerous.",-3,47],
-      ["Coraline must outsmart the other mother.",-4,66],
-      ["She rescues what has been trapped and returns home.",2,84],
-      ["Home feels more meaningful because Coraline has chosen it.",4,98]
-    ]
-  },
-  {
-    title:"Percy Jackson: The Titan's Curse",
-    shape:"Good News / Bad News",
-    events:[
-      ["Percy joins a rescue mission with friends and a clear purpose.",2,6],
-      ["The group gains clues but loses important allies.",0,26],
-      ["They learn more about the larger threat.",-1,45],
-      ["A sacrifice changes the mission.",-4,63],
-      ["Percy and his allies fight back with new resolve.",1,82],
-      ["The team survives with victories mixed with loss.",2,98]
-    ]
-  },
-  {
-    title:"Al Capone Does My Shirts",
-    shape:"Man in Hole",
-    events:[
-      ["Moose moves to Alcatraz hoping for a normal childhood.",0,7],
-      ["Family responsibilities complicate his plans.",-2,27],
-      ["He makes friends and discovers ways to help his sister.",1,45],
-      ["A mistake puts others at risk.",-3,64],
-      ["Moose takes responsibility and repairs what he can.",1,83],
-      ["He gains a new understanding of family and friendship.",3,98]
-    ]
+  const dx = [];
+  const dy = [];
+  const m = [];
+  for (let i = 0; i < n - 1; i++) {
+    const deltaX = pts[i + 1].x - pts[i].x;
+    const deltaY = pts[i + 1].y - pts[i].y;
+    dx.push(deltaX);
+    dy.push(deltaY);
+    m.push(deltaX === 0 ? 0 : deltaY / deltaX);
   }
-];
 
+  const tangents = [m[0]];
+  for (let i = 1; i < n - 1; i++) {
+    if (m[i - 1] * m[i] <= 0) {
+      tangents.push(0);
+    } else {
+      tangents.push((m[i - 1] + m[i]) / 2);
+    }
+  }
+  tangents.push(m[m.length - 1]);
 
-// Keep the classroom library at 50 examples and favor recognizable titles.
-// The arcs are simplified instructional models—not full plot summaries.
-const excludedExampleTitles = new Set([
-  "The Wild Book",
-  "The Watsons Learn How to Navigate Adventure",
-  "The Watsons and the Search for Home",
-  "The Lightning Thief: Camp Arc",
-  "The Wild Robot Escapes",
-  "Percy Jackson: Sea of Monsters",
-  "Percy Jackson: The Titan's Curse",
-  "The Boy in the Striped Pajamas",
-  "The House on Mango Street",
-  "The Hobbit",
-  "The Parker Inheritance",
-  "The Candymakers",
-  "Save Me a Seat",
-  "The Last Kids on Earth"
-]);
-for (let i = exampleLibrary.length - 1; i >= 0; i--) {
-  if (excludedExampleTitles.has(exampleLibrary[i].title)) exampleLibrary.splice(i, 1);
+  const segments = [];
+  for (let i = 0; i < n - 1; i++) {
+    const span = dx[i] / 3;
+    const p1 = pts[i];
+    const c1 = { x: pts[i].x + span, y: pts[i].y + tangents[i] * span };
+    const c2 = { x: pts[i + 1].x - span, y: pts[i + 1].y - tangents[i + 1] * span };
+    const p2 = pts[i + 1];
+
+    // Midpoint at Bezier parameter u = 0.5
+    const midX = 0.125 * p1.x + 0.375 * c1.x + 0.375 * c2.x + 0.125 * p2.x;
+    const midY = 0.125 * p1.y + 0.375 * c1.y + 0.375 * c2.y + 0.125 * p2.y;
+
+    segments.push({ p1, c1, c2, p2, midX, midY });
+  }
+  return segments;
 }
 
-exampleLibrary.push(
-  {
-    title:"The Secret Garden",
-    shape:"Cinderella",
-    events:[
-      ["Mary arrives at a strange house feeling lonely and unwanted.",-2,7],
-      ["She discovers a hidden garden and begins caring for it.",1,25],
-      ["Mary makes friends and becomes healthier and more hopeful.",3,44],
-      ["A secret about the house creates fear and uncertainty.",0,62],
-      ["Mary and her friends help bring a damaged family back together.",2,82],
-      ["The garden becomes a symbol of renewal and belonging.",5,98]
-    ]
-  },
-  {
-    title:"Anne of Green Gables",
-    shape:"Cinderella",
-    events:[
-      ["Anne arrives at Green Gables unsure whether she will be accepted.",-1,7],
-      ["She makes mistakes but begins to form friendships.",1,25],
-      ["Her imagination and determination help her find her place.",3,44],
-      ["A conflict or embarrassing mistake causes a setback.",-2,63],
-      ["Anne learns from the experience and deepens her relationships.",2,82],
-      ["She feels that Green Gables truly is home.",5,98]
-    ]
-  },
-  {
-    title:"Charlotte's Web",
-    shape:"Man in Hole",
-    events:[
-      ["Wilbur is a lonely young pig who fears what may happen to him.",-2,7],
-      ["Charlotte becomes his friend and gives him hope.",2,25],
-      ["Her web messages make Wilbur famous and safer.",4,45],
-      ["The danger has not disappeared, and time is running out.",-2,65],
-      ["Charlotte creates one final way to help Wilbur.",0,82],
-      ["Wilbur survives and carries Charlotte's friendship forward.",2,98]
-    ]
-  }
-);
+function monotoneSplinePath(points) {
+  if (!points || points.length === 0) return "";
+  if (points.length === 1) return `M ${sx(points[0][0])} ${sy(points[0][1])}`;
 
-let unseenExamples = [];
-let lastExampleIndex = -1;
-
-function resetExampleShuffle() {
-  unseenExamples = Array.from({length: exampleLibrary.length}, (_,i)=>i);
-  // Fisher-Yates shuffle
-  for (let i=unseenExamples.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [unseenExamples[i], unseenExamples[j]] = [unseenExamples[j], unseenExamples[i]];
+  const pts = points.map(p => ({ x: sx(p[0]), y: sy(p[1]) }));
+  if (pts.length === 2) {
+    return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`;
   }
+
+  const segments = computeSplineSegments(pts);
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (const seg of segments) {
+    d += ` C ${seg.c1.x.toFixed(2)} ${seg.c1.y.toFixed(2)}, ${seg.c2.x.toFixed(2)} ${seg.c2.y.toFixed(2)}, ${seg.p2.x.toFixed(2)} ${seg.p2.y.toFixed(2)}`;
+  }
+  return d;
 }
 
-function populateExampleSelect() {
-  const select = document.getElementById("exampleSelect");
-  if (!select) return;
-  select.innerHTML = `<option value="">Choose a story…</option>` +
-    exampleLibrary.map((ex,i)=>`<option value="${i}">${escapeHtml(ex.title)}</option>`).join("");
+function linePath(points) {
+  if (!points || !points.length) return "";
+  let d = `M ${sx(points[0][0])} ${sy(points[0][1])}`;
+  for (let i = 1; i < points.length; i++) {
+    d += ` L ${sx(points[i][0])} ${sy(points[i][1])}`;
+  }
+  return d;
 }
 
-function loadExampleByIndex(index) {
-  snapshotCurrentWorkspace();
-  const ex = exampleLibrary[index];
-  if (!ex) return;
-  lastExampleIndex = index;
-  storyTitle.value = `${ex.title} (example arc)`;
-  events = ex.events.map(([text,score,time]) => ({text, score, time}));
-  activeShapes = new Set([ex.shape]);
-
-  const select = document.getElementById("exampleSelect");
-  if (select) select.value = String(index);
-
-  if (unseenExamples.includes(index)) {
-    unseenExamples = unseenExamples.filter(i => i !== index);
+// --- Grid Rendering ---
+function renderGrid() {
+  const g = document.getElementById("grid");
+  let html = "";
+  for (let s = -5; s <= 5; s++) {
+    const y = sy(s);
+    if (s !== 0) {
+      html += `<line class="grid-line" x1="70" y1="${y}" x2="850" y2="${y}"></line>`;
+    }
+    const label = s > 0 ? `+${s}` : `${s}`;
+    html += `<text class="tick-text" x="46" y="${y + 3.5}" text-anchor="end">${label}</text>`;
   }
-  const status = document.getElementById("exampleStatus");
-  if (status) {
-    status.textContent =
-      `${unseenExamples.length} of ${exampleLibrary.length} examples remain unseen. ` +
-      `This is a simplified instructional arc for discussion, not a complete plot summary.`;
+  for (let t = 20; t <= 80; t += 20) {
+    const x = sx(t);
+    html += `<line class="grid-line" x1="${x}" y1="40" x2="${x}" y2="460"></line>`;
+    html += `<text class="tick-text" x="${x}" y="476" text-anchor="middle">${t}%</text>`;
   }
-  render();
+  g.innerHTML = html;
 }
 
-function loadRandomExample() {
-  if (!unseenExamples.length) resetExampleShuffle();
-  let index = unseenExamples.pop();
+// --- Template Archetypes Rendering ---
+function renderTemplates() {
+  const t = document.getElementById("templates");
+  let html = "";
+  Object.keys(shapes).forEach((name) => {
+    if (activeShapes.has(name)) {
+      const sh = shapes[name];
+      const pathD = monotoneSplinePath(sh.pts);
+      html += `<path id="tpl-${name.replace(/\s+/g,'-')}" class="template-path" d="${pathD}" stroke="${sh.color}"></path>`;
+    }
+  });
+  t.innerHTML = html;
 
-  // Avoid immediately repeating the same story after a reset.
-  if (index === lastExampleIndex && unseenExamples.length) {
-    const swapIndex = Math.floor(Math.random()*unseenExamples.length);
-    [index, unseenExamples[swapIndex]] = [unseenExamples[swapIndex], index];
-  }
-  loadExampleByIndex(index);
+  const legend = document.getElementById("legend");
+  legend.innerHTML = Object.keys(shapes).map((name) => {
+    const sh = shapes[name];
+    const active = activeShapes.has(name) ? "active" : "";
+    return `
+      <div class="legend-item ${active}"
+           onclick="toggleShape('${name.replace(/'/g, "\\'")}')"
+           onmouseenter="highlightTemplate('${name.replace(/'/g, "\\'")}', true)"
+           onmouseleave="highlightTemplate('${name.replace(/'/g, "\\'")}', false)"
+           title="${sh.desc}">
+        <span class="legend-color-dot" style="background:${sh.color};"></span>
+        <span>${name}</span>
+      </div>`;
+  }).join("");
 }
 
-function loadSelectedExample(value) {
-  if (value === "") return;
-  loadExampleByIndex(Number(value));
+function highlightTemplate(name, isHighlight) {
+  const elem = document.getElementById(`tpl-${name.replace(/\s+/g,'-')}`);
+  if (elem) elem.classList.toggle("highlighted", isHighlight);
+}
+
+function toggleShape(name) {
+  if (activeShapes.has(name)) {
+    activeShapes.delete(name);
+  } else {
+    activeShapes.add(name);
+  }
+  renderTemplates();
+  savePlanToBrowser();
 }
 
 function toggleAllShapes() {
@@ -1569,372 +1037,1005 @@ function toggleAllShapes() {
   } else {
     activeShapes = new Set(Object.keys(shapes));
   }
-  render();
+  renderTemplates();
+  savePlanToBrowser();
 }
 
-function sx(percent) { return 70 + (percent/100)*780; }
-function sy(score) { return 250 - (score/5)*200; }
+// --- Chronological Ordering ---
+function chronologicalEvents() {
+  return events
+    .map((e, originalIndex) => ({ ...e, originalIndex }))
+    .sort((a, b) => (a.time - b.time) || (a.originalIndex - b.originalIndex));
+}
 
-function smoothPath(points) {
-  if (!points.length) return "";
-  if (points.length === 1) return `M ${sx(points[0][0])} ${sy(points[0][1])}`;
-  let d = `M ${sx(points[0][0])} ${sy(points[0][1])}`;
-  for (let i=0;i<points.length-1;i++) {
-    const p0 = points[i-1] || points[i];
-    const p1 = points[i];
-    const p2 = points[i+1];
-    const p3 = points[i+2] || p2;
-    const c1x = sx(p1[0] + (p2[0]-p0[0])/6);
-    const c1y = sy(p1[1] + (p2[1]-p0[1])/6);
-    const c2x = sx(p2[0] - (p3[0]-p1[0])/6);
-    const c2y = sy(p2[1] - (p3[1]-p1[1])/6);
-    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${sx(p2[0])} ${sy(p2[1])}`;
+// --- Render User Story Curve ---
+function renderUserCurve() {
+  const pathElem = document.getElementById("userCurve");
+  const shadowElem = document.getElementById("userCurveShadow");
+  const areaGood = document.getElementById("userAreaGood");
+  const areaBad = document.getElementById("userAreaBad");
+
+  const ordered = chronologicalEvents();
+  if (ordered.length === 0) {
+    pathElem.setAttribute("d", "");
+    shadowElem.setAttribute("d", "");
+    areaGood.setAttribute("d", "");
+    areaBad.setAttribute("d", "");
+    return;
   }
-  return d;
+
+  const rawPts = ordered.map(e => [e.time, e.score]);
+  const curveD = (curveStyle === "smooth" && rawPts.length > 2)
+    ? monotoneSplinePath(rawPts)
+    : linePath(rawPts);
+
+  pathElem.setAttribute("d", curveD);
+  shadowElem.setAttribute("d", curveD);
+
+  if (ordered.length >= 2) {
+    const firstX = sx(ordered[0].time);
+    const lastX = sx(ordered[ordered.length - 1].time);
+    const baselineY = sy(0);
+    const fullAreaD = `${curveD} L ${lastX} ${baselineY} L ${firstX} ${baselineY} Z`;
+    areaGood.setAttribute("d", fullAreaD);
+    areaBad.setAttribute("d", fullAreaD);
+  } else {
+    areaGood.setAttribute("d", "");
+    areaBad.setAttribute("d", "");
+  }
 }
 
-function renderGrid() {
-  const g = document.getElementById("grid");
+// --- Render In-Between Bridge Markers on the Arc ---
+function renderBridgeMarkers() {
+  const g = document.getElementById("bridgeMarkers");
+  if (!showBridges || events.length < 2) {
+    g.innerHTML = "";
+    return;
+  }
+
+  const ordered = chronologicalEvents();
+  const pts = ordered.map(e => ({ x: sx(e.time), y: sy(e.score) }));
+
+  let midpoints = [];
+  if (curveStyle === "smooth" && pts.length > 2) {
+    const segments = computeSplineSegments(pts);
+    midpoints = segments.map(seg => ({ x: seg.midX, y: seg.midY }));
+  } else {
+    for (let i = 0; i < pts.length - 1; i++) {
+      midpoints.push({
+        x: (pts[i].x + pts[i + 1].x) / 2,
+        y: (pts[i].y + pts[i + 1].y) / 2
+      });
+    }
+  }
+
   let html = "";
-  for (let s=-5; s<=5; s++) {
-    const y = sy(s);
-    html += `<line class="grid" x1="70" y1="${y}" x2="850" y2="${y}"></line>`;
-    html += `<text class="ytick" x="42" y="${y+4}">${s>0?"+":""}${s}</text>`;
+  for (let i = 0; i < ordered.length - 1; i++) {
+    const fromItem = ordered[i];
+    const toItem = ordered[i + 1];
+    const mid = midpoints[i];
+    const hasNote = Boolean(fromItem.inBetween && fromItem.inBetween.trim());
+
+    html += `
+      <g class="bridge-node ${hasNote ? 'has-note' : ''}"
+         data-bridge-from="${fromItem.originalIndex}"
+         transform="translate(${mid.x.toFixed(1)} ${mid.y.toFixed(1)})"
+         onmouseenter="showBridgeTooltip(${fromItem.originalIndex}, ${toItem.originalIndex}, ${mid.x}, ${mid.y})"
+         onmouseleave="hideTooltip()"
+         onclick="scrollToInBetween(${fromItem.originalIndex})">
+        <circle class="bridge-circle" r="8"></circle>
+        <text class="bridge-icon">${hasNote ? '✦' : '+'}</text>
+      </g>`;
   }
   g.innerHTML = html;
 }
 
-function renderTemplates() {
-  const t = document.getElementById("templates");
-  const colors = ["#8b5cf6","#ec4899","#10b981","#ef4444","#f59e0b"];
-  const keys = Object.keys(shapes);
-  let html = "";
-  keys.forEach((name,idx) => {
-    if (activeShapes.has(name)) {
-      html += `<path class="template" d="${smoothPath(shapes[name].pts)}" stroke="${colors[idx]}"></path>`;
+function showBridgeTooltip(fromIdx, toIdx, midX, midY) {
+  const fromEvent = events[fromIdx];
+  const toEvent = events[toIdx];
+  if (!fromEvent || !toEvent) return;
+
+  const tooltipGroup = document.getElementById("tooltipGroup");
+  const title = document.getElementById("tooltipTitle");
+  const sub = document.getElementById("tooltipSub");
+  const desc = document.getElementById("tooltipDesc");
+  const bg = document.getElementById("tooltipBg");
+
+  title.textContent = `In-Between: Event #${fromIdx + 1} ➔ Event #${toIdx + 1}`;
+  sub.textContent = `Timing: ${fromEvent.time}% – ${toEvent.time}% of story`;
+
+  const note = fromEvent.inBetween && fromEvent.inBetween.trim();
+  if (note) {
+    const preview = note.length > 65 ? note.substring(0, 62) + "..." : note;
+    desc.textContent = `“${preview}”`;
+  } else {
+    desc.textContent = "Click to write what happened between these moments!";
+  }
+
+  let tx = midX - 110;
+  let ty = midY - 76;
+  if (tx < 75) tx = 75;
+  if (tx + 220 > 845) tx = 845 - 220;
+  if (ty < 45) ty = midY + 16;
+
+  tooltipGroup.setAttribute("transform", `translate(${tx} ${ty})`);
+  tooltipGroup.style.opacity = "1";
+
+  // Highlight corresponding in-between card in sidebar
+  document.querySelectorAll(".inbetween-block").forEach(b => b.classList.remove("active-inbetween"));
+  const card = document.getElementById(`inbetweenBlock-${fromIdx}`);
+  if (card) card.classList.add("active-inbetween");
+}
+
+function scrollToInBetween(originalIdx) {
+  const input = document.getElementById(`inbetweenText-${originalIdx}`);
+  const card = document.getElementById(`inbetweenBlock-${originalIdx}`);
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (!inBetweensExpanded) toggleAllInBetweens();
+    if (input) {
+      setTimeout(() => input.focus(), 250);
     }
-  });
-  t.innerHTML = html;
-
-  const legend = document.getElementById("legend");
-  legend.innerHTML = keys.map((name,idx) => {
-    const active = activeShapes.has(name) ? "active" : "";
-    return `<div class="legend-item ${active}" onclick="toggleShape('${name.replace(/'/g,"\\'")}')" title="${shapes[name].desc}">${name}</div>`;
-  }).join("");
-}
-
-function toggleShape(name) {
-  if (activeShapes.has(name)) activeShapes.delete(name);
-  else activeShapes.add(name);
-  render();
-}
-
-function chronologicalEvents() {
-  return events
-    .map((e, i) => ({...e, index:i}))
-    .sort((a,b) => (a.time - b.time) || (a.index - b.index));
-}
-
-function linePath(points) {
-  if (!points.length) return "";
-  let d = `M ${sx(points[0][0])} ${sy(points[0][1])}`;
-  for (let i=1;i<points.length;i++) {
-    d += ` L ${sx(points[i][0])} ${sy(points[i][1])}`;
   }
-  return d;
 }
 
-function renderUserCurve() {
-  const path = document.getElementById("userCurve");
-  const ordered = chronologicalEvents();
-  if (!ordered.length) {
-    path.setAttribute("d","");
-    return;
-  }
-  path.setAttribute("d", linePath(ordered.map(e => [e.time, e.score])));
-}
-
-function updatePointVisual(i) {
-  const node = document.querySelector(`.point[data-index="${i}"]`);
-  if (!node) return;
-  const e = events[i];
-  node.setAttribute("transform", `translate(${sx(e.time)} ${sy(e.score)})`);
-}
-
+// --- Major Points Rendering ---
 function renderPoints() {
   const g = document.getElementById("points");
-  if (!events.length) { g.innerHTML=""; return; }
+  if (!events.length) { g.innerHTML = ""; return; }
+
   let html = "";
-  events.forEach((e,i) => {
-    const x = sx(e.time), y = sy(e.score);
+  events.forEach((e, i) => {
+    const x = sx(e.time);
+    const y = sy(e.score);
+    const isHovered = hoveredIndex === i;
+    const isDraggingThis = dragging === i;
+
     html += `
-      <g class="point" data-index="${i}" transform="translate(${x} ${y})"
-         onpointerdown="startDrag(event, ${i})">
-        <circle r="6.5" fill="#20232a" stroke="white" stroke-width="2"></circle>
-        <text class="point-label" x="9" y="-8">${i+1}</text>
+      <g class="point-group ${isDraggingThis ? 'active-drag' : ''}" data-index="${i}"
+         transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"
+         onpointerdown="startDrag(event, ${i})"
+         onpointerenter="showTooltip(${i})"
+         onpointerleave="hideTooltip()">
+        <circle class="point-hit" r="22"></circle>
+        <circle class="point-halo" r="${isHovered || isDraggingThis ? 18 : 12}"></circle>
+        <circle class="point-circle" r="${isHovered || isDraggingThis ? 8.5 : 7}"></circle>
+        <text class="point-tag" y="0">${i + 1}</text>
       </g>`;
   });
   g.innerHTML = html;
 }
 
-function updateEventTime(i, value) {
-  events[i].time = Number(value);
-  const label = document.getElementById(`timeLabel-${i}`);
-  if (label) label.textContent = `${events[i].time}%`;
-  const node = document.querySelector(`.point[data-index="${i}"]`);
-  if (node) node.setAttribute("transform", `translate(${sx(events[i].time)} ${sy(events[i].score)})`);
-  renderUserCurve();
-  updateInsight();
+function showTooltip(i) {
+  hoveredIndex = i;
+  const e = events[i];
+  if (!e) return;
+
+  const tooltipGroup = document.getElementById("tooltipGroup");
+  const title = document.getElementById("tooltipTitle");
+  const sub = document.getElementById("tooltipSub");
+  const desc = document.getElementById("tooltipDesc");
+
+  title.textContent = `Event #${i + 1}`;
+  const fortuneSign = e.score > 0 ? "+" : "";
+  sub.textContent = `Timing: ${e.time}% • Fortune: ${fortuneSign}${e.score}`;
+
+  const textPreview = e.text.length > 55 ? e.text.substring(0, 52) + "..." : e.text;
+  desc.textContent = textPreview || "(No description)";
+
+  const px = sx(e.time);
+  const py = sy(e.score);
+  let tx = px - 110;
+  let ty = py - 76;
+
+  if (tx < 75) tx = 75;
+  if (tx + 220 > 845) tx = 845 - 220;
+  if (ty < 45) ty = py + 16;
+
+  tooltipGroup.setAttribute("transform", `translate(${tx} ${ty})`);
+  tooltipGroup.style.opacity = "1";
+
+  highlightEventCard(i, true);
 }
 
+function hideTooltip() {
+  if (dragging === null) {
+    hoveredIndex = null;
+    const tooltipGroup = document.getElementById("tooltipGroup");
+    if (tooltipGroup) tooltipGroup.style.opacity = "0";
+    document.querySelectorAll(".event").forEach(el => el.classList.remove("active-event"));
+    document.querySelectorAll(".inbetween-block").forEach(b => b.classList.remove("active-inbetween"));
+  }
+}
+
+function highlightEventCard(i, isHighlighted) {
+  document.querySelectorAll(".event").forEach((el, idx) => {
+    el.classList.toggle("active-event", isHighlighted && idx === i);
+  });
+}
+
+// --- Drag and Drop Logic ---
+function startDrag(e, i) {
+  dragging = i;
+  hoveredIndex = i;
+  showTooltip(i);
+  e.currentTarget.setPointerCapture(e.pointerId);
+}
+
+chart.addEventListener("pointermove", (e) => {
+  if (dragging === null) return;
+
+  const pt = chart.createSVGPoint();
+  pt.x = e.clientX;
+  pt.y = e.clientY;
+  const ctm = chart.getScreenCTM().inverse();
+  const loc = pt.matrixTransform(ctm);
+
+  let newTime = Math.round(invSx(loc.x));
+  newTime = Math.max(0, Math.min(100, newTime));
+
+  let rawScore = invSy(loc.y);
+  let newScore = Math.round(rawScore * 2) / 2;
+  newScore = Math.max(-5, Math.min(5, newScore));
+
+  events[dragging].time = newTime;
+  events[dragging].score = newScore;
+
+  updatePointNodeVisual(dragging);
+  renderUserCurve();
+  renderBridgeMarkers();
+  updateEventListItem(dragging);
+  showTooltip(dragging);
+  updateInsight();
+});
+
+function endDrag() {
+  if (dragging !== null) {
+    dragging = null;
+    hideTooltip();
+    render();
+    savePlanToBrowser();
+  }
+}
+
+chart.addEventListener("pointerup", endDrag);
+chart.addEventListener("pointercancel", endDrag);
+
+function updatePointNodeVisual(i) {
+  const node = document.querySelector(`.point-group[data-index="${i}"]`);
+  if (!node) return;
+  const e = events[i];
+  node.setAttribute("transform", `translate(${sx(e.time).toFixed(1)} ${sy(e.score).toFixed(1)})`);
+}
+
+function updateEventListItem(i) {
+  const e = events[i];
+  const timeSlider = document.getElementById(`timeSlider-${i}`);
+  const timeLabel = document.getElementById(`timeLabel-${i}`);
+  const fortuneSlider = document.getElementById(`listFortuneSlider-${i}`);
+  const scoreLabel = document.getElementById(`scoreLabel-${i}`);
+
+  if (timeSlider) timeSlider.value = e.time;
+  if (timeLabel) timeLabel.textContent = `${e.time}%`;
+  if (fortuneSlider) fortuneSlider.value = e.score;
+  if (scoreLabel) scoreLabel.textContent = `${e.score > 0 ? "+" : ""}${e.score}`;
+}
+
+// --- List UI & In-Between Editing ---
 function renderList() {
   const list = document.getElementById("eventList");
-  list.innerHTML = events.map((e,i)=>`
-    <div class="event">
-      <div class="num">${i+1}</div>
-      <div>
-        <div class="event-text">${escapeHtml(e.text)}</div>
-        <div class="event-score">Fortune: ${e.score > 0 ? "+" : ""}${e.score}</div>
-        <div style="margin-top:6px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#667085;">
-            <span>When?</span><strong id="timeLabel-${i}">${e.time}%</strong>
+  const ordered = chronologicalEvents();
+
+  if (ordered.length === 0) {
+    list.innerHTML = "";
+    document.getElementById("eventCountBadge").textContent = "0 events";
+    document.getElementById("inBetweenCountBadge").textContent = "0 in-betweens";
+    renderNarrativeLog();
+    return;
+  }
+
+  let html = "";
+  let writtenBridgesCount = 0;
+
+  ordered.forEach((item, idx) => {
+    const i = item.originalIndex;
+    html += `
+      <div class="event" id="eventCard-${i}"
+           onmouseenter="showTooltip(${i})"
+           onmouseleave="hideTooltip()">
+        <div class="num">${i + 1}</div>
+        <div>
+          <div class="event-text" contenteditable="true" spellcheck="false"
+               onblur="updateEventText(${i}, this.textContent)"
+               title="Click to edit event">${escapeHtml(item.text)}</div>
+          <div class="event-controls">
+            <div class="event-control-item">
+              <div><span>When?</span><strong id="timeLabel-${i}">${item.time}%</strong></div>
+              <input id="timeSlider-${i}" type="range" min="0" max="100" value="${item.time}"
+                     oninput="updateEventTime(${i}, this.value)">
+            </div>
+            <div class="event-control-item">
+              <div><span>Fortune</span><strong id="scoreLabel-${i}">${item.score > 0 ? "+" : ""}${item.score}</strong></div>
+              <input id="listFortuneSlider-${i}" type="range" min="-5" max="5" step="0.5" value="${item.score}"
+                     oninput="updateEventScore(${i}, this.value)">
+            </div>
           </div>
-          <input type="range" min="0" max="100" value="${e.time}"
-                 oninput="updateEventTime(${i}, this.value)" style="width:100%;margin-top:2px;">
         </div>
-      </div>
-      <button class="delete" aria-label="Delete event" onclick="deleteEvent(${i})">×</button>
-    </div>`).join("");
-  document.getElementById("eventCount").textContent = `${events.length} ${events.length===1?"event":"events"}`;
+        <button class="delete-btn" aria-label="Delete event" onclick="deleteEvent(${i})" title="Delete event">×</button>
+      </div>`;
+
+    // Render In-Between Transition Card leading to the next chronological event
+    if (idx < ordered.length - 1) {
+      const nextItem = ordered[idx + 1];
+      const hasContent = Boolean(item.inBetween && item.inBetween.trim());
+      if (hasContent) writtenBridgesCount++;
+
+      html += `
+        <div class="inbetween-block ${hasContent ? 'has-content' : ''}" id="inbetweenBlock-${i}">
+          <div class="inbetween-header">
+            <div class="inbetween-header-left">
+              <span class="inbetween-icon-badge">IN-BETWEEN</span>
+              <span>Event #${i + 1} ➔ #${nextItem.originalIndex + 1}</span>
+            </div>
+            <span style="font-size:10px;color:var(--muted);">${item.time}% – ${nextItem.time}%</span>
+          </div>
+          <textarea class="inbetween-textarea" id="inbetweenText-${i}"
+            style="display:${inBetweensExpanded ? 'block' : 'none'};"
+            placeholder="What happened between Event #${i + 1} and #${nextItem.originalIndex + 1}? (e.g., travel, rising tension, new decisions, time jump...)"
+            oninput="updateInBetweenText(${i}, this.value)">${escapeHtml(item.inBetween || "")}</textarea>
+        </div>`;
+    }
+  });
+
+  list.innerHTML = html;
+
+  // Badges count
+  document.getElementById("eventCountBadge").textContent = `${events.length} ${events.length === 1 ? "event" : "events"}`;
+  const totalBridges = Math.max(0, events.length - 1);
+  document.getElementById("inBetweenCountBadge").textContent = `${writtenBridgesCount}/${totalBridges} in-betweens`;
+
+  renderNarrativeLog();
 }
 
+function updateInBetweenText(originalIdx, text) {
+  events[originalIdx].inBetween = text;
+  const block = document.getElementById(`inbetweenBlock-${originalIdx}`);
+  if (block) block.classList.toggle("has-content", Boolean(text.trim()));
+
+  // Live update the bridge count badge & graph markers
+  const ordered = chronologicalEvents();
+  let written = 0;
+  for (let i = 0; i < ordered.length - 1; i++) {
+    if (ordered[i].inBetween && ordered[i].inBetween.trim()) written++;
+  }
+  document.getElementById("inBetweenCountBadge").textContent = `${written}/${Math.max(0, events.length - 1)} in-betweens`;
+
+  renderBridgeMarkers();
+  renderNarrativeLog();
+  savePlanToBrowser();
+}
+
+function updateEventTime(i, val) {
+  events[i].time = Number(val);
+  const timeLabel = document.getElementById(`timeLabel-${i}`);
+  if (timeLabel) timeLabel.textContent = `${events[i].time}%`;
+  updatePointNodeVisual(i);
+  renderUserCurve();
+  renderBridgeMarkers();
+  renderList();
+  updateInsight();
+  savePlanToBrowser();
+}
+
+function updateEventScore(i, val) {
+  events[i].score = Number(val);
+  const scoreLabel = document.getElementById(`scoreLabel-${i}`);
+  if (scoreLabel) scoreLabel.textContent = `${events[i].score > 0 ? "+" : ""}${events[i].score}`;
+  updatePointNodeVisual(i);
+  renderUserCurve();
+  renderBridgeMarkers();
+  updateInsight();
+  savePlanToBrowser();
+}
+
+function updateEventText(i, newText) {
+  events[i].text = newText.trim() || events[i].text;
+  renderNarrativeLog();
+  savePlanToBrowser();
+}
+
+function addEvent() {
+  const text = eventText.value.trim();
+  if (!text) {
+    eventText.focus();
+    return;
+  }
+  const autoTime = events.length === 0 ? 8 : Math.min(96, Math.round(events[events.length - 1].time + 14));
+  events.push({
+    text,
+    score: Number(fortune.value),
+    time: autoTime,
+    inBetween: ""
+  });
+
+  eventText.value = "";
+  fortune.value = 0;
+  updateFortuneLabel();
+  render();
+  eventText.focus();
+}
+
+function deleteEvent(i) {
+  events.splice(i, 1);
+  render();
+}
+
+function clearAll() {
+  if (events.length && !confirm("Clear all events and in-betweens to start a fresh plot?")) return;
+  events = [];
+  storyTitle.value = "";
+  activeShapes.clear();
+  render();
+}
+
+// --- Narrative Log for Review & Printing ---
+function renderNarrativeLog() {
+  const container = document.getElementById("narrativeLogList");
+  if (!container) return;
+
+  const ordered = chronologicalEvents();
+  if (ordered.length === 0) {
+    container.innerHTML = `<div style="font-size:12px;color:var(--muted);font-style:italic;">No narrative plotted yet.</div>`;
+    return;
+  }
+
+  let html = "";
+  ordered.forEach((item, idx) => {
+    const fStr = item.score > 0 ? `+${item.score}` : `${item.score}`;
+    html += `
+      <div class="narrative-log-item">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;">
+          <span>EVENT #${item.originalIndex + 1} (${item.time}% of story)</span>
+          <span style="color:${item.score >= 0 ? '#10b981' : '#ef4444'};">Fortune: ${fStr}</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--ink);">${escapeHtml(item.text)}</div>
+      </div>`;
+
+    if (idx < ordered.length - 1) {
+      const nextItem = ordered[idx + 1];
+      const inBetweenText = item.inBetween && item.inBetween.trim();
+      html += `
+        <div class="narrative-log-bridge">
+          <div style="font-size:10px;font-weight:750;letter-spacing:0.04em;text-transform:uppercase;color:#0284c7;margin-bottom:2px;">
+            ↳ In-Between (Event #${item.originalIndex + 1} ➔ #${nextItem.originalIndex + 1})
+          </div>
+          <div style="font-style:${inBetweenText ? 'normal' : 'italic'};color:${inBetweenText ? '#0c4a6e' : '#94a3b8'};">
+            ${inBetweenText ? escapeHtml(inBetweenText) : '(No in-between summary noted yet)'}
+          </div>
+        </div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+// --- Archetype Best Match Analysis ---
 function nearestShape() {
   if (events.length < 3) return null;
-  const keys = Object.keys(shapes);
-  const user = chronologicalEvents().map(e=>[e.time, e.score]);
-  let best = {name:null,score:Infinity};
-  for (const name of keys) {
+  const ordered = chronologicalEvents().map(e => [e.time, e.score]);
+  let best = { name: null, score: Infinity };
+
+  Object.keys(shapes).forEach(name => {
     const tpl = shapes[name].pts;
-    let total = 0;
-    user.forEach(u => {
+    let totalError = 0;
+
+    ordered.forEach(u => {
       const x = u[0];
       let j = 0;
-      while (j < tpl.length-1 && tpl[j+1][0] < x) j++;
-      const a = tpl[j], b = tpl[Math.min(j+1,tpl.length-1)];
-      const span = (b[0]-a[0]) || 1;
-      const frac = Math.max(0, Math.min(1, (x-a[0])/span));
-      const ys = a[1] + (b[1]-a[1])*frac;
-      total += Math.pow(u[1]-ys, 2);
+      while (j < tpl.length - 1 && tpl[j + 1][0] < x) j++;
+      const a = tpl[j];
+      const b = tpl[Math.min(j + 1, tpl.length - 1)];
+      const span = (b[0] - a[0]) || 1;
+      const frac = Math.max(0, Math.min(1, (x - a[0]) / span));
+      const interpolatedY = a[1] + (b[1] - a[1]) * frac;
+      totalError += Math.pow(u[1] - interpolatedY, 2);
     });
-    const rmse = Math.sqrt(total/user.length);
-    if (rmse < best.score) best = {name,score:rmse};
-  }
+
+    const rmse = Math.sqrt(totalError / ordered.length);
+    if (rmse < best.score) best = { name, score: rmse };
+  });
   return best;
 }
 
 function updateInsight() {
   const box = document.getElementById("insight");
   if (events.length < 3) {
-    box.innerHTML = "Add <strong>3–5 major events</strong> to begin seeing a recognizable story shape.";
+    box.innerHTML = "Add <strong>3–5 major events</strong> across the beginning, middle, and end to begin seeing the narrative arc.";
     return;
   }
+
   const ordered = chronologicalEvents();
-  const first = ordered[0].score, last = ordered[ordered.length-1].score;
-  const min = Math.min(...events.map(e=>e.score));
-  const max = Math.max(...events.map(e=>e.score));
-  const minIndex = ordered.findIndex(e=>e.score===min)+1;
-  const maxIndex = ordered.findIndex(e=>e.score===max)+1;
+  const first = ordered[0].score;
+  const last = ordered[ordered.length - 1].score;
+  const minScore = Math.min(...events.map(e => e.score));
+  const maxScore = Math.max(...events.map(e => e.score));
+  const lowestPt = ordered.find(e => e.score === minScore);
+  const highestPt = ordered.find(e => e.score === maxScore);
   const guess = nearestShape();
+
+  const startDesc = first > 0.5 ? "positive fortune" : first < -0.5 ? "struggle / low fortune" : "neutral baseline";
+  const endDesc = last > 0.5 ? "triumph / higher fortune" : last < -0.5 ? "loss / low fortune" : "neutral resolution";
+
   box.innerHTML =
-    `Your plot moves from <strong>${first > 0 ? "better fortune" : first < 0 ? "worse fortune" : "neutral fortune"}</strong> ` +
-    `to <strong>${last > 0 ? "better fortune" : last < 0 ? "worse fortune" : "neutral fortune"}</strong>. ` +
-    `The lowest point is around event <strong>${minIndex}</strong>; the highest is around event <strong>${maxIndex}</strong>.<br><br>` +
-    `<strong>Discussion prompt:</strong> “What specific event caused the biggest change in direction?”` +
-    (guess ? `<br><br><strong>Pattern match (use as a discussion starter, not an answer):</strong> ${guess.name}.` : "");
+    `This narrative begins in <strong>${startDesc}</strong> and concludes in <strong>${endDesc}</strong>.<br>` +
+    `• Lowest crisis point: <strong>Event #${lowestPt.originalIndex + 1}</strong> (${lowestPt.score > 0 ? "+" : ""}${lowestPt.score}) around ${lowestPt.time}% of the story.<br>` +
+    `• Peak high point: <strong>Event #${highestPt.originalIndex + 1}</strong> (${highestPt.score > 0 ? "+" : ""}${highestPt.score}) around ${highestPt.time}% of the story.<br><br>` +
+    `<strong>Discussion prompt:</strong> <em>“Check your in-betweens: what rising actions or choices drove the character from the lowest point to the highest?”</em>` +
+    (guess ? `<br><br>🎯 <strong>Closest Vonnegut Archetype:</strong> <span style="color:${shapes[guess.name].color};font-weight:750;">${guess.name}</span> (${shapes[guess.name].desc})` : "");
 }
 
-function render() {
-  renderWorkspaceTabs();
-  renderGrid();
-  renderTemplates();
-  renderUserCurve();
-  renderPoints();
-  renderList();
-  updateInsight();
-  const ws = currentWorkspace();
-  if (ws && !appInitializing) {
-    ws.status = workspaceStatus;
-    ws.updatedAt = new Date().toISOString();
-    scheduleSave();
+// --- Curated Classroom Examples Library with In-Betweens ---
+const exampleLibrary = [
+  {
+    title: "Holes (Louis Sachar)",
+    shape: "Man in Hole",
+    events: [
+      {
+        text: "Stanley is falsely accused of stealing Clyde Livingston's sneakers.",
+        score: -3,
+        time: 6,
+        inBetween: "Stanley is convicted in court, says goodbye to his family, and endures an exhausting 8-hour bus ride into the arid Texas desert."
+      },
+      {
+        text: "Sent to Camp Green Lake where boys are forced to dig 5-foot holes daily in the heat.",
+        score: -4.5,
+        time: 20,
+        inBetween: "Weeks of blistering heat pass. Stanley develops thick calluses, earns the nickname Caveman, and secretly agrees to teach Zero to read in exchange for digging help."
+      },
+      {
+        text: "Stanley finds a gold lipstick tube belonging to Kissin' Kate Barlow.",
+        score: 0.5,
+        time: 42,
+        inBetween: "The Warden becomes obsessed and aggressive, forcing the boys to double their digging until tensions explode and Zero attacks Mr. Pendanski."
+      },
+      {
+        text: "Zero flees into the desert; Stanley steals the water truck to rescue his friend.",
+        score: -3.5,
+        time: 64,
+        inBetween: "Stanley hikes through the scorching salt flats, discovers Zero sheltering under the Mary Lou boat, and carries him up Big Thumb mountain."
+      },
+      {
+        text: "They survive on God's Thumb eating wild onions and formulate a plan to uncover the truth.",
+        score: 3.5,
+        time: 82,
+        inBetween: "Regaining their strength, they sneak back to Camp Green Lake at midnight and dig deep into the original hole where the lipstick was found."
+      },
+      {
+        text: "The curse is broken; Stanley is completely exonerated and reunited with family.",
+        score: 5,
+        time: 96,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "Cinderella (Classic Fairy Tale)",
+    shape: "Cinderella",
+    events: [
+      {
+        text: "Cinderella is mistreated and forced into servitude by her wicked stepmother.",
+        score: -4,
+        time: 6,
+        inBetween: "The royal palace announces a grand ball. Cinderella helps her stepsisters dress up while weeping alone by the hearth."
+      },
+      {
+        text: "Fairy Godmother transforms her rags into a shimmering gown and a pumpkin into a carriage.",
+        score: 3.5,
+        time: 45,
+        inBetween: "She arrives at the palace, capturing the breathless attention of everyone in the royal ballroom."
+      },
+      {
+        text: "She dances with the Prince and captures his heart.",
+        score: 4.5,
+        time: 60,
+        inBetween: "The grandfather clock begins chiming midnight; terrified of being uncovered, she flees down the palace steps and drops a single glass slipper."
+      },
+      {
+        text: "Midnight strikes; magic dissolves and she returns to rags by the cold ashes.",
+        score: -2.5,
+        time: 70,
+        inBetween: "The Prince's heralds travel across the entire kingdom testing the glass slipper on every maiden, as the stepsisters fruitlessly try to squeeze their feet in."
+      },
+      {
+        text: "The Prince arrives at Cinderella's house and the slipper fits her foot perfectly.",
+        score: 4.8,
+        time: 88,
+        inBetween: "Cinderella pulls out the matching slipper from her apron and forgives her stepfamily."
+      },
+      {
+        text: "Cinderella marries the Prince in a celebration of justice and triumph.",
+        score: 5,
+        time: 98,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "Hatchet (Gary Paulsen)",
+    shape: "Man in Hole",
+    events: [
+      {
+        text: "Brian flies in a small Cessna to visit his father in Canada while grappling with his parents' divorce.",
+        score: -1.5,
+        time: 6,
+        inBetween: "The pilot suddenly suffers a massive heart attack mid-flight, leaving Brian screaming over the radio before steering the plane down."
+      },
+      {
+        text: "The plane crashes into a lake; Brian barely swims ashore, stranded alone in the wilderness.",
+        score: -5,
+        time: 20,
+        inBetween: "Brian battles hordes of biting mosquitoes, hunger cramps, and deep despair until he realizes self-pity will not keep him alive."
+      },
+      {
+        text: "He discovers how to strike sparks with his hatchet, creating life-saving fire and catching fish.",
+        score: 2,
+        time: 55,
+        inBetween: "A fierce tornado hits the lake overnight, tearing away his brush shelter and flipping the submerged plane wreckage."
+      },
+      {
+        text: "A moose attacks Brian and a tornado destroys his camp, testing his mental limit.",
+        score: -2,
+        time: 74,
+        inBetween: "Seeing the exposed plane tail, Brian builds a log raft, dives into the cockpit with his hatchet, and retrieves the survival transmitter."
+      },
+      {
+        text: "Brian flips on the emergency beacon and is rescued, forever transformed by inner strength.",
+        score: 4.5,
+        time: 96,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "The Odyssey (Homer)",
+    shape: "Man in Hole",
+    events: [
+      {
+        text: "Odysseus departs victorious after the fall of Troy, eager to return home to Ithaca.",
+        score: 3,
+        time: 5,
+        inBetween: "He lands on the island of the Cyclopes, where arrogance leads him to blind Polyphemus and anger the sea-god Poseidon."
+      },
+      {
+        text: "Poseidon's wrath unleashes violent storms, drowning his ships and crew across monstrous seas.",
+        score: -5,
+        time: 48,
+        inBetween: "Odysseus washes ashore on Ogygia, held captive for seven long years by the nymph Calypso until Athena persuades Zeus to release him."
+      },
+      {
+        text: "Athena disguises Odysseus as an elderly beggar so he can sneak back into his palace in Ithaca.",
+        score: 0.5,
+        time: 78,
+        inBetween: "He witnesses the insolent suitors devouring his estate and mistreating his loyal servants and son Telemachus."
+      },
+      {
+        text: "Strings his great bow, slays the suitors, and reclaims his kingdom and throne beside Penelope.",
+        score: 5,
+        time: 98,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "The Lightning Thief (Rick Riordan)",
+    shape: "Boy Meets Girl",
+    events: [
+      {
+        text: "Percy discovers he is a demigod and is accused of stealing Zeus's master lightning bolt.",
+        score: -1.5,
+        time: 8,
+        inBetween: "His mother is taken by the Minotaur, and Percy is escorted to Camp Half-Blood where he masters swordsmanship and Greek lore."
+      },
+      {
+        text: "Arrives at Camp Half-Blood, discovers true friendship with Annabeth and Grover, and claims his quest.",
+        score: 3,
+        time: 32,
+        inBetween: "The trio journeys west across America, fighting Medusa, the Chimera, and navigating the magical Lotus Casino."
+      },
+      {
+        text: "Betrayed by the magic shoes; enters the Underworld and is trapped before Hades.",
+        score: -4,
+        time: 68,
+        inBetween: "Percy realizes Ares manipulated the quest, escapes the Underworld using magic pearls, and confronts the God of War on the beach."
+      },
+      {
+        text: "Defeats Ares, returns the Master Bolt to Olympus, and accepts his destiny as a hero.",
+        score: 4.5,
+        time: 96,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "The Giver (Lois Lowry)",
+    shape: "Good News / Bad News",
+    events: [
+      {
+        text: "Jonas is singled out and selected as the community's next Receiver of Memory.",
+        score: 3,
+        time: 8,
+        inBetween: "He begins training with the Giver, experiencing warmth, color, sledding on snow, and deep human affection."
+      },
+      {
+        text: "Receives joyful memories of love and rainbow colors, feeling alive for the first time.",
+        score: 4.5,
+        time: 30,
+        inBetween: "The Giver transmits painful memories of warfare, starvation, bone fractures, and grief."
+      },
+      {
+        text: "Discovers the dark truth: 'release' means cold lethal injection of innocent twin babies.",
+        score: -4.5,
+        time: 68,
+        inBetween: "Devastated and unable to remain complicit, Jonas devises an escape plan with the Giver to restore memories to the town."
+      },
+      {
+        text: "Escapes on a bicycle with baby Gabriel into the freezing, starvation-filled wilderness.",
+        score: -2,
+        time: 84,
+        inBetween: "Pushing through snowdrifts and exhaustion, Jonas finds a sled at the crest of a hill and hears distant music."
+      },
+      {
+        text: "Reaches Elsewhere, finding true humanity, love, and hope for Gabriel's future.",
+        score: 3.5,
+        time: 98,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "Romeo and Juliet (Shakespeare)",
+    shape: "Boy Meets Girl",
+    events: [
+      {
+        text: "Ancient blood feud between Montagues and Capulets spills into the streets of Verona.",
+        score: -1,
+        time: 6,
+        inBetween: "Romeo crashes the Capulet masquerade ball, where he first gazes upon Juliet across the crowded room."
+      },
+      {
+        text: "Romeo and Juliet meet at the feast and fall head-over-heels in love.",
+        score: 4.5,
+        time: 26,
+        inBetween: "Friar Laurence secretly weds the young lovers in his cell, praying the union will heal the families' rivalry."
+      },
+      {
+        text: "Tybalt slays Mercutio; Romeo avenges him by killing Tybalt and is banished from Verona forever.",
+        score: -4.5,
+        time: 62,
+        inBetween: "Desperate to avoid marrying Paris, Juliet drinks a sleeping draught to feign death, but Friar John's message never reaches Romeo."
+      },
+      {
+        text: "Romeo poisons himself beside Juliet's tomb; Juliet awakes and ends her life in tragic grief.",
+        score: -5,
+        time: 98,
+        inBetween: ""
+      }
+    ]
+  },
+  {
+    title: "Wonder (R.J. Palacio)",
+    shape: "Man in Hole",
+    events: [
+      {
+        text: "Auggie is terrified of entering Beecher Prep middle school due to his severe facial differences.",
+        score: -3,
+        time: 6,
+        inBetween: "Auggie endures cruel stares, the 'Plague' game, and hears his trusted friend Jack Will insult him on Halloween."
+      },
+      {
+        text: "Jack sincerely apologizes and Summer chooses true friendship, sitting with Auggie at lunch.",
+        score: 2,
+        time: 48,
+        inBetween: "The school year progresses. Classmates warm up to Auggie's humor during the science fair and school retreat."
+      },
+      {
+        text: "Attacked by older bullies in the woods; seventh-graders unite to defend Auggie.",
+        score: 2.5,
+        time: 76,
+        inBetween: "The courage shown at camp shifts the entire social atmosphere of Beecher Prep towards acceptance."
+      },
+      {
+        text: "Auggie receives the prestigious Henry Ward Beecher medal for extraordinary kindness and strength.",
+        score: 5,
+        time: 98,
+        inBetween: ""
+      }
+    ]
+  }
+];
+
+let unseenExamples = [];
+function resetExampleShuffle() {
+  unseenExamples = Array.from({ length: exampleLibrary.length }, (_, i) => i);
+  for (let i = unseenExamples.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [unseenExamples[i], unseenExamples[j]] = [unseenExamples[j], unseenExamples[i]];
   }
 }
 
-function startDrag(e,i) {
-  dragging = i;
-  e.currentTarget.setPointerCapture(e.pointerId);
-}
-document.getElementById("chart").addEventListener("pointermove", (e)=>{
-  if (dragging === null) return;
-  const svg = document.getElementById("chart");
-  const pt = svg.createSVGPoint();
-  pt.x = e.clientX; pt.y = e.clientY;
-  const ctm = svg.getScreenCTM().inverse();
-  const loc = pt.matrixTransform(ctm);
-
-  let time = Math.round(((loc.x - 70) / 780) * 100);
-  time = Math.max(0, Math.min(100, time));
-
-  let score = 250 - loc.y;
-  score = Math.round((score/200)*5);
-  score = Math.max(-5, Math.min(5, score));
-
-  events[dragging].time = time;
-  events[dragging].score = score;
-
-  const slider = document.querySelector(`#eventList .event:nth-child(${dragging+1}) input[type="range"]`);
-  if (slider) slider.value = time;
-  const label = document.getElementById(`timeLabel-${dragging}`);
-  if (label) label.textContent = `${time}%`;
-
-  updatePointVisual(dragging);
-  renderUserCurve();
-  updateInsight();
-  scheduleSave();
-});
-document.getElementById("chart").addEventListener("pointerup", ()=> dragging=null);
-document.getElementById("chart").addEventListener("pointercancel", ()=> dragging=null);
-
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function populateExampleSelect() {
+  const select = document.getElementById("exampleSelect");
+  if (!select) return;
+  select.innerHTML = `<option value="">Choose a story...</option>` +
+    exampleLibrary.map((ex, i) => `<option value="${i}">${escapeHtml(ex.title)}</option>`).join("");
 }
 
+function loadExampleByIndex(index) {
+  const ex = exampleLibrary[index];
+  if (!ex) return;
+  storyTitle.value = ex.title;
+  events = ex.events.map(item => ({
+    text: item.text,
+    score: Number(item.score),
+    time: Number(item.time),
+    inBetween: item.inBetween || ""
+  }));
+  activeShapes = new Set([ex.shape]);
 
+  const select = document.getElementById("exampleSelect");
+  if (select) select.value = String(index);
+
+  render();
+  savePlanToBrowser();
+}
+
+function loadRandomExample() {
+  if (!unseenExamples.length) resetExampleShuffle();
+  const index = unseenExamples.pop();
+  loadExampleByIndex(index);
+}
+
+function loadSelectedExample(val) {
+  if (val === "") return;
+  loadExampleByIndex(Number(val));
+}
+
+// --- Persistence (Local Storage & JSON File) ---
 function getPlanState() {
-  snapshotCurrentWorkspace();
-  const ws = currentWorkspace();
-  return ws ? {...ws} : {title:"Untitled story", storyTitle:"Untitled story", studentName:"", events:[], activeShapes:[], mode, status:workspaceStatus, updatedAt:new Date().toISOString()};
+  return {
+    storyTitle: storyTitle.value,
+    events: events.map(e => ({
+      text: e.text,
+      score: Number(e.score),
+      time: Number(e.time),
+      inBetween: String(e.inBetween || "")
+    })),
+    activeShapes: Array.from(activeShapes),
+    mode,
+    curveStyle,
+    showBridges
+  };
 }
 
-function downloadJson(filename, obj) {
-  const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+function savePlanToBrowser() {
+  if (isInitializing) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getPlanState()));
+    const status = document.getElementById("saveStatus");
+    if (status) status.textContent = `Auto-saved ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+  } catch (err) {
+    const status = document.getElementById("saveStatus");
+    if (status) status.textContent = "Local storage disabled";
+  }
+}
+
+function restorePlanFromBrowser() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    if (!state || !Array.isArray(state.events)) return false;
+
+    storyTitle.value = state.storyTitle || "";
+    events = state.events.map((e, i) => ({
+      text: String(e.text || ""),
+      score: Math.max(-5, Math.min(5, Number(e.score) || 0)),
+      time: Math.max(0, Math.min(100, Number(e.time ?? (8 + i * 14)))),
+      inBetween: String(e.inBetween || "")
+    }));
+
+    if (Array.isArray(state.activeShapes)) activeShapes = new Set(state.activeShapes);
+    if (state.mode === "own" || state.mode === "review") setMode(state.mode);
+    if (state.curveStyle === "linear" || state.curveStyle === "smooth") setCurveStyle(state.curveStyle);
+    if (typeof state.showBridges === "boolean") {
+      showBridges = state.showBridges;
+      const chk = document.getElementById("showBridgesCheckbox");
+      if (chk) chk.checked = showBridges;
+    }
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 function savePlanFile() {
-  const state = getPlanState();
-  const safe = (state.storyTitle || "my-story-arc").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase() || "my-story-arc";
-  downloadJson(`${safe}.json`, state);
-}
-
-function saveStudentSubmissionFile() {
-  const state = getPlanState();
-  state.submissionType = "student-story-arc";
-  state.exportedAt = new Date().toISOString();
-  const name = (state.studentName || "student").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase() || "student";
-  const title = (state.storyTitle || "story-arc").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase() || "story-arc";
-  state.status = "Ready for teacher review";
-  workspaceStatus = state.status;
-  const ws = currentWorkspace(); if (ws) ws.status = state.status;
-  render();
-  downloadJson(`${name}-${title}.json`, state);
+  const blob = new Blob([JSON.stringify(getPlanState(), null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const cleanTitle = (storyTitle.value.trim() || "story-shape-arc").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+  a.href = url;
+  a.download = `${cleanTitle}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function loadPlanFile(event) {
-  const file = event.target.files?.[0]; if (!file) return;
+  const file = event.target.files?.[0];
+  if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const state = JSON.parse(reader.result);
-      if (!Array.isArray(state.events)) throw new Error("Invalid plan");
-      const ws = currentWorkspace() || createDefaultWorkspace("My Story 1");
-      if (!currentWorkspace()) { workspaces.push(ws); currentWorkspaceId = ws.id; }
-      ws.storyTitle = String(state.storyTitle || state.title || "Imported story"); ws.title = ws.storyTitle;
-      ws.studentName = String(state.studentName || ""); ws.events = state.events.map(e=>({text:String(e.text||""), score:Number(e.score)||0, time:Number(e.time)||0}));
-      ws.activeShapes = Array.isArray(state.activeShapes) ? state.activeShapes : []; ws.mode = state.mode === "review" ? "review" : "own"; ws.status = state.status || "Planning"; ws.updatedAt = state.updatedAt || new Date().toISOString();
-      loadWorkspace(ws.id, false);
-    } catch (err) { alert("That file does not look like a saved Story Arc plan."); }
+      if (!state || !Array.isArray(state.events)) throw new Error("Invalid plan file");
+      storyTitle.value = state.storyTitle || "";
+      events = state.events.map((e, i) => ({
+        text: String(e.text || ""),
+        score: Math.max(-5, Math.min(5, Number(e.score) || 0)),
+        time: Math.max(0, Math.min(100, Number(e.time ?? (8 + i * 14)))),
+        inBetween: String(e.inBetween || "")
+      }));
+      if (Array.isArray(state.activeShapes)) activeShapes = new Set(state.activeShapes);
+      if (state.mode) setMode(state.mode);
+      if (state.curveStyle) setCurveStyle(state.curveStyle);
+      render();
+      savePlanToBrowser();
+    } catch (err) {
+      alert("Invalid Story Shape JSON file.");
+    }
     event.target.value = "";
   };
   reader.readAsText(file);
 }
 
-function openTeacherGate() {
-  const attempt = prompt("Teacher password:");
-  if (attempt === TEACHER_PASSWORD) {
-    document.getElementById("teacherPanel").style.display = "block";
-    renderTeacherDashboard();
-    window.scrollTo({top:0,behavior:"smooth"});
-  } else if (attempt !== null) alert("Teacher View password is incorrect.");
-}
-
-function closeTeacherView() { document.getElementById("teacherPanel").style.display = "none"; }
-
-function importTeacherFiles(event) {
-  const files = Array.from(event.target.files || []);
-  if (!files.length) return;
-  let remaining = files.length;
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        if (data && data.packetType === "vonnegut-story-arc-class-packet" && Array.isArray(data.plans)) teacherImportedPlans.push(...data.plans.map(normalizeWorkspace));
-        else if (data && data.submissionType === "student-story-arc") teacherImportedPlans.push(normalizeWorkspace(data));
-        else if (data && Array.isArray(data.events)) teacherImportedPlans.push(normalizeWorkspace(data));
-      } catch (err) {}
-      remaining -= 1;
-      if (remaining === 0) { renderTeacherDashboard(); event.target.value = ""; }
-    };
-    reader.readAsText(file);
-  });
-}
-
-function addTeacherNote(i) {
-  const p = teacherImportedPlans[i]; if (!p) return;
-  const note = prompt(`Teacher note for ${p.studentName || "this student"}:`, p.teacherNote || "");
-  if (note === null) return;
-  p.teacherNote = note; renderTeacherDashboard();
-}
-
-function renderTeacherDashboard() {
-  const summary = document.getElementById("teacherSummary");
-  const cards = document.getElementById("teacherCards");
-  if (!summary || !cards) return;
-  summary.textContent = teacherImportedPlans.length ? `${teacherImportedPlans.length} student plan${teacherImportedPlans.length===1?'':'s'} imported.` : "No student plans imported yet.";
-  cards.innerHTML = teacherImportedPlans.map((p,i)=>`
-    <div class="student-card">
-      <h3>${escapeHtml(p.studentName || "Unnamed student")}</h3>
-      <div class="student-meta">
-        <strong>${escapeHtml(p.storyTitle || p.title || "Untitled story")}</strong><br>
-        Status: <span class="badge ${p.status==='Ready for teacher review'?'ready':''}">${escapeHtml(p.status || "Planning")}</span><br>
-        ${Array.isArray(p.events)?p.events.length:0} plot points · Updated ${p.updatedAt ? new Date(p.updatedAt).toLocaleString() : "—"}
-      </div>
-      <details class="teacher-work">
-        <summary>Open student work</summary>
-        ${(p.events||[]).map((e,j)=>`<div style="margin-top:6px;"><strong>${j+1}.</strong> ${escapeHtml(e.text)} <span style="color:#667085;">(time ${Math.round(Number(e.time)||0)}%, fortune ${Number(e.score)>0?'+':''}${Number(e.score)||0})</span></div>`).join('')}
-        <div style="margin-top:9px;"><strong>Shape reference:</strong> ${escapeHtml(Array.isArray(p.activeShapes)&&p.activeShapes.length?p.activeShapes.join(', '):'None selected')}</div>
-        <textarea class="teacher-note" id="teacherNote-${i}" placeholder="Private teacher note">${escapeHtml(p.teacherNote||'')}</textarea>
-        <div class="teacher-actions"><button onclick="addTeacherNote(${i})">Save note</button></div>
-      </details>
-    </div>`).join("");
-}
-
-function exportTeacherReview() {
-  const packet = {packetType:"vonnegut-story-arc-teacher-review", version:1, exportedAt:new Date().toISOString(), plans:teacherImportedPlans};
-  downloadJson("vonnegut-story-arcs-reviewed.json", packet);
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
 }
 
 function printPage() {
   window.print();
 }
 
-eventText.addEventListener("keydown", (e)=>{
+eventText.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") addEvent();
 });
 
-initializeApp();
+storyTitle.addEventListener("input", savePlanToBrowser);
+
+// --- Master Render ---
+function render() {
+  renderGrid();
+  renderTemplates();
+  renderUserCurve();
+  renderBridgeMarkers();
+  renderPoints();
+  renderList();
+  updateInsight();
+  if (!isInitializing) savePlanToBrowser();
+}
+
+// --- App Bootstrap ---
+resetExampleShuffle();
+populateExampleSelect();
+const hadSaved = restorePlanFromBrowser();
+if (!hadSaved && events.length === 0) {
+  loadExampleByIndex(0);
+}
+isInitializing = false;
+render();
 </script>
 </body>
 </html>
